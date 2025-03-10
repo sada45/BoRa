@@ -1,0 +1,4 @@
+#define SPEACTOR_FACTOR (8)
+#define BANDWIDTH (800)
+#define PAYLOAD_LENGTH (24)
+

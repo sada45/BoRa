@@ -1,0 +1,2966 @@
+ARM GAS  /tmp/ccJtVQ71.s 			page 1
+
+
+   1              		.cpu cortex-m3
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"usbhw_lpc.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.Wait4DevInt,"ax",%progbits
+  16              		.align	1
+  17              		.arch armv7-m
+  18              		.syntax unified
+  19              		.thumb
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	Wait4DevInt:
+  24              	.LVL0:
+  25              	.LFB0:
+  26              		.file 1 "../common/lpcusb/target/usbhw_lpc.c"
+   1:../common/lpcusb/target/usbhw_lpc.c **** /*
+   2:../common/lpcusb/target/usbhw_lpc.c ****     LPCUSB, an USB device driver for LPC microcontrollers   
+   3:../common/lpcusb/target/usbhw_lpc.c ****     Copyright (C) 2006 Bertrik Sikken (bertrik@sikken.nl)
+   4:../common/lpcusb/target/usbhw_lpc.c **** 
+   5:../common/lpcusb/target/usbhw_lpc.c ****     Redistribution and use in source and binary forms, with or without
+   6:../common/lpcusb/target/usbhw_lpc.c ****     modification, are permitted provided that the following conditions are met:
+   7:../common/lpcusb/target/usbhw_lpc.c **** 
+   8:../common/lpcusb/target/usbhw_lpc.c ****     1. Redistributions of source code must retain the above copyright
+   9:../common/lpcusb/target/usbhw_lpc.c ****        notice, this list of conditions and the following disclaimer.
+  10:../common/lpcusb/target/usbhw_lpc.c ****     2. Redistributions in binary form must reproduce the above copyright
+  11:../common/lpcusb/target/usbhw_lpc.c ****        notice, this list of conditions and the following disclaimer in the
+  12:../common/lpcusb/target/usbhw_lpc.c ****        documentation and/or other materials provided with the distribution.
+  13:../common/lpcusb/target/usbhw_lpc.c ****     3. The name of the author may not be used to endorse or promote products
+  14:../common/lpcusb/target/usbhw_lpc.c ****        derived from this software without specific prior written permission.
+  15:../common/lpcusb/target/usbhw_lpc.c **** 
+  16:../common/lpcusb/target/usbhw_lpc.c ****     THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+  17:../common/lpcusb/target/usbhw_lpc.c ****     IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+  18:../common/lpcusb/target/usbhw_lpc.c ****     OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+  19:../common/lpcusb/target/usbhw_lpc.c ****     IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, 
+  20:../common/lpcusb/target/usbhw_lpc.c ****     INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+  21:../common/lpcusb/target/usbhw_lpc.c ****     NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  22:../common/lpcusb/target/usbhw_lpc.c ****     DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  23:../common/lpcusb/target/usbhw_lpc.c ****     THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  24:../common/lpcusb/target/usbhw_lpc.c ****     (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+  25:../common/lpcusb/target/usbhw_lpc.c ****     THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  26:../common/lpcusb/target/usbhw_lpc.c **** */
+  27:../common/lpcusb/target/usbhw_lpc.c **** 
+  28:../common/lpcusb/target/usbhw_lpc.c **** 
+  29:../common/lpcusb/target/usbhw_lpc.c **** /** @file
+  30:../common/lpcusb/target/usbhw_lpc.c ****     USB hardware layer
+  31:../common/lpcusb/target/usbhw_lpc.c ****  */
+  32:../common/lpcusb/target/usbhw_lpc.c **** 
+ARM GAS  /tmp/ccJtVQ71.s 			page 2
+
+
+  33:../common/lpcusb/target/usbhw_lpc.c **** #include "type.h"
+  34:../common/lpcusb/target/usbhw_lpc.c **** #include "debug.h"
+  35:../common/lpcusb/target/usbhw_lpc.c **** 
+  36:../common/lpcusb/target/usbhw_lpc.c **** #ifdef LPC17xx
+  37:../common/lpcusb/target/usbhw_lpc.c **** #include "lpc17.h"
+  38:../common/lpcusb/target/usbhw_lpc.c **** #endif
+  39:../common/lpcusb/target/usbhw_lpc.c **** #ifdef LPC214x
+  40:../common/lpcusb/target/usbhw_lpc.c **** #include "lpc214x.h"
+  41:../common/lpcusb/target/usbhw_lpc.c **** #endif
+  42:../common/lpcusb/target/usbhw_lpc.c **** #ifdef LPC23xx
+  43:../common/lpcusb/target/usbhw_lpc.c **** #include "lpc23xx.h"
+  44:../common/lpcusb/target/usbhw_lpc.c **** #endif
+  45:../common/lpcusb/target/usbhw_lpc.c **** #include "usbhw_lpc.h"
+  46:../common/lpcusb/target/usbhw_lpc.c **** #include "usbapi.h"
+  47:../common/lpcusb/target/usbhw_lpc.c **** 
+  48:../common/lpcusb/target/usbhw_lpc.c **** 
+  49:../common/lpcusb/target/usbhw_lpc.c **** #ifdef DEBUG
+  50:../common/lpcusb/target/usbhw_lpc.c **** // comment out the following line if you don't want to use debug LEDs
+  51:../common/lpcusb/target/usbhw_lpc.c **** #define DEBUG_LED
+  52:../common/lpcusb/target/usbhw_lpc.c **** #endif
+  53:../common/lpcusb/target/usbhw_lpc.c **** 
+  54:../common/lpcusb/target/usbhw_lpc.c **** #ifdef DEBUG_LED
+  55:../common/lpcusb/target/usbhw_lpc.c **** #ifdef LPC17xx
+  56:../common/lpcusb/target/usbhw_lpc.c **** #define DEBUG_LED_INIT(x)
+  57:../common/lpcusb/target/usbhw_lpc.c **** #define DEBUG_LED_ON(x)
+  58:../common/lpcusb/target/usbhw_lpc.c **** #define DEBUG_LED_OFF(x)
+  59:../common/lpcusb/target/usbhw_lpc.c **** #elif LPC214x
+  60:../common/lpcusb/target/usbhw_lpc.c **** #define DEBUG_LED_ON(x)     IOCLR0 = (1 << x);
+  61:../common/lpcusb/target/usbhw_lpc.c **** #define DEBUG_LED_OFF(x)    IOSET0 = (1 << x);
+  62:../common/lpcusb/target/usbhw_lpc.c **** #define DEBUG_LED_INIT(x)   PINSEL0 &= ~(0x3 << (2*x)); IODIR0 |= (1 << x); DEBUG_LED_OFF(x);
+  63:../common/lpcusb/target/usbhw_lpc.c **** #else
+  64:../common/lpcusb/target/usbhw_lpc.c **** #define DEBUG_LED_ON(x)     FIO2SET = (1 << (x-8));
+  65:../common/lpcusb/target/usbhw_lpc.c **** #define DEBUG_LED_OFF(x)    FIO2CLR = (1 << (x-8));
+  66:../common/lpcusb/target/usbhw_lpc.c **** #define DEBUG_LED_INIT(x)   SCS |= 1; PINSEL10 = 0; FIO2DIR |= (1 << (x-8)); DEBUG_LED_OFF(x);
+  67:../common/lpcusb/target/usbhw_lpc.c **** #endif
+  68:../common/lpcusb/target/usbhw_lpc.c **** #else
+  69:../common/lpcusb/target/usbhw_lpc.c **** #define DEBUG_LED_INIT(x)   /**< LED initialisation macro */
+  70:../common/lpcusb/target/usbhw_lpc.c **** #define DEBUG_LED_ON(x)     /**< turn LED on */
+  71:../common/lpcusb/target/usbhw_lpc.c **** #define DEBUG_LED_OFF(x)    /**< turn LED off */
+  72:../common/lpcusb/target/usbhw_lpc.c **** #endif
+  73:../common/lpcusb/target/usbhw_lpc.c **** 
+  74:../common/lpcusb/target/usbhw_lpc.c **** /** Installed device interrupt handler */
+  75:../common/lpcusb/target/usbhw_lpc.c **** static TFnDevIntHandler *_pfnDevIntHandler = NULL;
+  76:../common/lpcusb/target/usbhw_lpc.c **** /** Installed endpoint interrupt handlers */
+  77:../common/lpcusb/target/usbhw_lpc.c **** static TFnEPIntHandler  *_apfnEPIntHandlers[16];
+  78:../common/lpcusb/target/usbhw_lpc.c **** /** Installed frame interrupt handlers */
+  79:../common/lpcusb/target/usbhw_lpc.c **** static TFnFrameHandler  *_pfnFrameHandler = NULL;
+  80:../common/lpcusb/target/usbhw_lpc.c **** 
+  81:../common/lpcusb/target/usbhw_lpc.c **** /** convert from endpoint address to endpoint index */
+  82:../common/lpcusb/target/usbhw_lpc.c **** #define EP2IDX(bEP) ((((bEP)&0xF)<<1)|(((bEP)&0x80)>>7))
+  83:../common/lpcusb/target/usbhw_lpc.c **** /** convert from endpoint index to endpoint address */
+  84:../common/lpcusb/target/usbhw_lpc.c **** #define IDX2EP(idx) ((((idx)<<7)&0x80)|(((idx)>>1)&0xF))
+  85:../common/lpcusb/target/usbhw_lpc.c **** 
+  86:../common/lpcusb/target/usbhw_lpc.c **** 
+  87:../common/lpcusb/target/usbhw_lpc.c **** 
+  88:../common/lpcusb/target/usbhw_lpc.c **** /**
+  89:../common/lpcusb/target/usbhw_lpc.c ****     Local function to wait for a device interrupt (and clear it)
+ARM GAS  /tmp/ccJtVQ71.s 			page 3
+
+
+  90:../common/lpcusb/target/usbhw_lpc.c ****         
+  91:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] dwIntr      Bitmask of interrupts to wait for   
+  92:../common/lpcusb/target/usbhw_lpc.c ****  */
+  93:../common/lpcusb/target/usbhw_lpc.c **** static void Wait4DevInt(U32 dwIntr)
+  94:../common/lpcusb/target/usbhw_lpc.c **** {
+  27              		.loc 1 94 1 view -0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32              		.loc 1 94 1 is_stmt 0 view .LVU1
+  95:../common/lpcusb/target/usbhw_lpc.c ****     // wait for specific interrupt
+  96:../common/lpcusb/target/usbhw_lpc.c ****     while ((USBDevIntSt & dwIntr) != dwIntr);
+  33              		.loc 1 96 5 is_stmt 1 view .LVU2
+  34              		.loc 1 96 13 is_stmt 0 view .LVU3
+  35 0000 034A     		ldr	r2, .L4
+  36              	.L2:
+  37              		.loc 1 96 45 is_stmt 1 discriminator 1 view .LVU4
+  38              		.loc 1 96 11 discriminator 1 view .LVU5
+  39              		.loc 1 96 13 is_stmt 0 discriminator 1 view .LVU6
+  40 0002 1368     		ldr	r3, [r2]
+  41              		.loc 1 96 11 discriminator 1 view .LVU7
+  42 0004 30EA0303 		bics	r3, r0, r3
+  43 0008 FBD1     		bne	.L2
+  97:../common/lpcusb/target/usbhw_lpc.c ****     // clear the interrupt bits
+  98:../common/lpcusb/target/usbhw_lpc.c ****     USBDevIntClr = dwIntr;
+  44              		.loc 1 98 5 is_stmt 1 view .LVU8
+  45              		.loc 1 98 18 is_stmt 0 view .LVU9
+  46 000a 024B     		ldr	r3, .L4+4
+  47 000c 1860     		str	r0, [r3]
+  99:../common/lpcusb/target/usbhw_lpc.c **** }
+  48              		.loc 1 99 1 view .LVU10
+  49 000e 7047     		bx	lr
+  50              	.L5:
+  51              		.align	2
+  52              	.L4:
+  53 0010 00C20050 		.word	1342226944
+  54 0014 08C20050 		.word	1342226952
+  55              		.cfi_endproc
+  56              	.LFE0:
+  58              		.section	.text.USBHwCmd,"ax",%progbits
+  59              		.align	1
+  60              		.syntax unified
+  61              		.thumb
+  62              		.thumb_func
+  63              		.fpu softvfp
+  65              	USBHwCmd:
+  66              	.LVL1:
+  67              	.LFB1:
+ 100:../common/lpcusb/target/usbhw_lpc.c **** 
+ 101:../common/lpcusb/target/usbhw_lpc.c **** 
+ 102:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 103:../common/lpcusb/target/usbhw_lpc.c ****     Local function to send a command to the USB protocol engine
+ 104:../common/lpcusb/target/usbhw_lpc.c ****         
+ 105:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] bCmd        Command to send
+ 106:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 107:../common/lpcusb/target/usbhw_lpc.c **** static void USBHwCmd(U8 bCmd)
+ARM GAS  /tmp/ccJtVQ71.s 			page 4
+
+
+ 108:../common/lpcusb/target/usbhw_lpc.c **** {
+  68              		.loc 1 108 1 is_stmt 1 view -0
+  69              		.cfi_startproc
+  70              		@ args = 0, pretend = 0, frame = 0
+  71              		@ frame_needed = 0, uses_anonymous_args = 0
+  72              		@ link register save eliminated.
+  73              		.loc 1 108 1 is_stmt 0 view .LVU12
+ 109:../common/lpcusb/target/usbhw_lpc.c ****     // clear CDFULL/CCEMTY
+ 110:../common/lpcusb/target/usbhw_lpc.c ****     USBDevIntClr = CDFULL | CCEMTY;
+  74              		.loc 1 110 5 is_stmt 1 view .LVU13
+  75              		.loc 1 110 18 is_stmt 0 view .LVU14
+  76 0000 3022     		movs	r2, #48
+  77 0002 044B     		ldr	r3, .L7
+ 111:../common/lpcusb/target/usbhw_lpc.c ****     // write command code
+ 112:../common/lpcusb/target/usbhw_lpc.c ****     USBCmdCode = 0x00000500 | (bCmd << 16);
+  78              		.loc 1 112 37 view .LVU15
+  79 0004 0004     		lsls	r0, r0, #16
+  80              	.LVL2:
+  81              		.loc 1 112 29 view .LVU16
+  82 0006 40F4A060 		orr	r0, r0, #1280
+ 110:../common/lpcusb/target/usbhw_lpc.c ****     // write command code
+  83              		.loc 1 110 18 view .LVU17
+  84 000a 1A60     		str	r2, [r3]
+  85              		.loc 1 112 5 is_stmt 1 view .LVU18
+  86              		.loc 1 112 16 is_stmt 0 view .LVU19
+  87 000c 9860     		str	r0, [r3, #8]
+ 113:../common/lpcusb/target/usbhw_lpc.c ****     Wait4DevInt(CCEMTY);
+  88              		.loc 1 113 5 is_stmt 1 view .LVU20
+  89 000e 1020     		movs	r0, #16
+  90 0010 FFF7FEBF 		b	Wait4DevInt
+  91              	.LVL3:
+  92              	.L8:
+  93              		.align	2
+  94              	.L7:
+  95 0014 08C20050 		.word	1342226952
+  96              		.cfi_endproc
+  97              	.LFE1:
+  99              		.section	.text.USBHwCmdWrite,"ax",%progbits
+ 100              		.align	1
+ 101              		.syntax unified
+ 102              		.thumb
+ 103              		.thumb_func
+ 104              		.fpu softvfp
+ 106              	USBHwCmdWrite:
+ 107              	.LVL4:
+ 108              	.LFB2:
+ 114:../common/lpcusb/target/usbhw_lpc.c **** }
+ 115:../common/lpcusb/target/usbhw_lpc.c **** 
+ 116:../common/lpcusb/target/usbhw_lpc.c **** 
+ 117:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 118:../common/lpcusb/target/usbhw_lpc.c ****     Local function to send a command + data to the USB protocol engine
+ 119:../common/lpcusb/target/usbhw_lpc.c ****         
+ 120:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] bCmd        Command to send
+ 121:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] bData       Data to send
+ 122:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 123:../common/lpcusb/target/usbhw_lpc.c **** static void USBHwCmdWrite(U8 bCmd, U16 bData)
+ 124:../common/lpcusb/target/usbhw_lpc.c **** {
+ARM GAS  /tmp/ccJtVQ71.s 			page 5
+
+
+ 109              		.loc 1 124 1 view -0
+ 110              		.cfi_startproc
+ 111              		@ args = 0, pretend = 0, frame = 0
+ 112              		@ frame_needed = 0, uses_anonymous_args = 0
+ 113              		.loc 1 124 1 is_stmt 0 view .LVU22
+ 114 0000 08B5     		push	{r3, lr}
+ 115              		.cfi_def_cfa_offset 8
+ 116              		.cfi_offset 3, -8
+ 117              		.cfi_offset 14, -4
+ 125:../common/lpcusb/target/usbhw_lpc.c ****     // write command code
+ 126:../common/lpcusb/target/usbhw_lpc.c ****     USBHwCmd(bCmd);
+ 118              		.loc 1 126 5 is_stmt 1 view .LVU23
+ 119 0002 FFF7FEFF 		bl	USBHwCmd
+ 120              	.LVL5:
+ 127:../common/lpcusb/target/usbhw_lpc.c **** 
+ 128:../common/lpcusb/target/usbhw_lpc.c ****     // write command data
+ 129:../common/lpcusb/target/usbhw_lpc.c ****     USBCmdCode = 0x00000100 | (bData << 16);
+ 121              		.loc 1 129 5 view .LVU24
+ 122              		.loc 1 129 16 is_stmt 0 view .LVU25
+ 123 0006 054B     		ldr	r3, .L10
+ 124              		.loc 1 129 38 view .LVU26
+ 125 0008 0904     		lsls	r1, r1, #16
+ 126              	.LVL6:
+ 127              		.loc 1 129 29 view .LVU27
+ 128 000a 41F48071 		orr	r1, r1, #256
+ 129              		.loc 1 129 16 view .LVU28
+ 130 000e 1960     		str	r1, [r3]
+ 130:../common/lpcusb/target/usbhw_lpc.c ****     Wait4DevInt(CCEMTY);
+ 131              		.loc 1 130 5 is_stmt 1 view .LVU29
+ 132 0010 1020     		movs	r0, #16
+ 131:../common/lpcusb/target/usbhw_lpc.c **** }
+ 133              		.loc 1 131 1 is_stmt 0 view .LVU30
+ 134 0012 BDE80840 		pop	{r3, lr}
+ 135              		.cfi_restore 14
+ 136              		.cfi_restore 3
+ 137              		.cfi_def_cfa_offset 0
+ 130:../common/lpcusb/target/usbhw_lpc.c ****     Wait4DevInt(CCEMTY);
+ 138              		.loc 1 130 5 view .LVU31
+ 139 0016 FFF7FEBF 		b	Wait4DevInt
+ 140              	.LVL7:
+ 141              	.L11:
+ 142 001a 00BF     		.align	2
+ 143              	.L10:
+ 144 001c 10C20050 		.word	1342226960
+ 145              		.cfi_endproc
+ 146              	.LFE2:
+ 148              		.section	.text.USBHwEPConfig,"ax",%progbits
+ 149              		.align	1
+ 150              		.global	USBHwEPConfig
+ 151              		.syntax unified
+ 152              		.thumb
+ 153              		.thumb_func
+ 154              		.fpu softvfp
+ 156              	USBHwEPConfig:
+ 157              	.LVL8:
+ 158              	.LFB6:
+ 132:../common/lpcusb/target/usbhw_lpc.c **** 
+ARM GAS  /tmp/ccJtVQ71.s 			page 6
+
+
+ 133:../common/lpcusb/target/usbhw_lpc.c **** 
+ 134:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 135:../common/lpcusb/target/usbhw_lpc.c ****     Local function to send a command to the USB protocol engine and read data
+ 136:../common/lpcusb/target/usbhw_lpc.c ****         
+ 137:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] bCmd        Command to send
+ 138:../common/lpcusb/target/usbhw_lpc.c **** 
+ 139:../common/lpcusb/target/usbhw_lpc.c ****     @return the data
+ 140:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 141:../common/lpcusb/target/usbhw_lpc.c **** static U8 USBHwCmdRead(U8 bCmd)
+ 142:../common/lpcusb/target/usbhw_lpc.c **** {
+ 143:../common/lpcusb/target/usbhw_lpc.c ****     // write command code
+ 144:../common/lpcusb/target/usbhw_lpc.c ****     USBHwCmd(bCmd);
+ 145:../common/lpcusb/target/usbhw_lpc.c ****     
+ 146:../common/lpcusb/target/usbhw_lpc.c ****     // get data
+ 147:../common/lpcusb/target/usbhw_lpc.c ****     USBCmdCode = 0x00000200 | (bCmd << 16);
+ 148:../common/lpcusb/target/usbhw_lpc.c ****     Wait4DevInt(CDFULL);
+ 149:../common/lpcusb/target/usbhw_lpc.c ****     return USBCmdData;
+ 150:../common/lpcusb/target/usbhw_lpc.c **** }
+ 151:../common/lpcusb/target/usbhw_lpc.c **** 
+ 152:../common/lpcusb/target/usbhw_lpc.c **** 
+ 153:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 154:../common/lpcusb/target/usbhw_lpc.c ****     'Realizes' an endpoint, meaning that buffer space is reserved for
+ 155:../common/lpcusb/target/usbhw_lpc.c ****     it. An endpoint needs to be realised before it can be used.
+ 156:../common/lpcusb/target/usbhw_lpc.c ****         
+ 157:../common/lpcusb/target/usbhw_lpc.c ****     From experiments, it appears that a USB reset causes USBReEp to
+ 158:../common/lpcusb/target/usbhw_lpc.c ****     re-initialise to 3 (= just the control endpoints).
+ 159:../common/lpcusb/target/usbhw_lpc.c ****     However, a USB bus reset does not disturb the USBMaxPSize settings.
+ 160:../common/lpcusb/target/usbhw_lpc.c ****         
+ 161:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] idx         Endpoint index
+ 162:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] wMaxPSize   Maximum packet size for this endpoint
+ 163:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 164:../common/lpcusb/target/usbhw_lpc.c **** static void USBHwEPRealize(int idx, U16 wMaxPSize)
+ 165:../common/lpcusb/target/usbhw_lpc.c **** {
+ 166:../common/lpcusb/target/usbhw_lpc.c ****     USBReEp |= (1 << idx);
+ 167:../common/lpcusb/target/usbhw_lpc.c **** #ifdef LPC17xx
+ 168:../common/lpcusb/target/usbhw_lpc.c ****     USBEpIn = idx;
+ 169:../common/lpcusb/target/usbhw_lpc.c **** #else
+ 170:../common/lpcusb/target/usbhw_lpc.c ****     USBEpInd = idx;
+ 171:../common/lpcusb/target/usbhw_lpc.c **** #endif
+ 172:../common/lpcusb/target/usbhw_lpc.c ****     USBMaxPSize = wMaxPSize;
+ 173:../common/lpcusb/target/usbhw_lpc.c ****     Wait4DevInt(EP_RLZED);
+ 174:../common/lpcusb/target/usbhw_lpc.c **** }
+ 175:../common/lpcusb/target/usbhw_lpc.c **** 
+ 176:../common/lpcusb/target/usbhw_lpc.c **** 
+ 177:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 178:../common/lpcusb/target/usbhw_lpc.c ****     Enables or disables an endpoint
+ 179:../common/lpcusb/target/usbhw_lpc.c ****         
+ 180:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] idx     Endpoint index
+ 181:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] fEnable TRUE to enable, FALSE to disable
+ 182:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 183:../common/lpcusb/target/usbhw_lpc.c **** static void USBHwEPEnable(int idx, BOOL fEnable)
+ 184:../common/lpcusb/target/usbhw_lpc.c **** {
+ 185:../common/lpcusb/target/usbhw_lpc.c ****     USBHwCmdWrite(CMD_EP_SET_STATUS | idx, fEnable ? 0 : EP_DA);
+ 186:../common/lpcusb/target/usbhw_lpc.c **** }
+ 187:../common/lpcusb/target/usbhw_lpc.c **** 
+ 188:../common/lpcusb/target/usbhw_lpc.c **** 
+ 189:../common/lpcusb/target/usbhw_lpc.c **** /**
+ARM GAS  /tmp/ccJtVQ71.s 			page 7
+
+
+ 190:../common/lpcusb/target/usbhw_lpc.c ****     Configures an endpoint and enables it
+ 191:../common/lpcusb/target/usbhw_lpc.c ****         
+ 192:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] bEP             Endpoint number
+ 193:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] wMaxPacketSize  Maximum packet size for this EP
+ 194:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 195:../common/lpcusb/target/usbhw_lpc.c **** void USBHwEPConfig(U8 bEP, U16 wMaxPacketSize)
+ 196:../common/lpcusb/target/usbhw_lpc.c **** {
+ 159              		.loc 1 196 1 is_stmt 1 view -0
+ 160              		.cfi_startproc
+ 161              		@ args = 0, pretend = 0, frame = 0
+ 162              		@ frame_needed = 0, uses_anonymous_args = 0
+ 163              		.loc 1 196 1 is_stmt 0 view .LVU33
+ 164 0000 10B5     		push	{r4, lr}
+ 165              		.cfi_def_cfa_offset 8
+ 166              		.cfi_offset 4, -8
+ 167              		.cfi_offset 14, -4
+ 197:../common/lpcusb/target/usbhw_lpc.c ****     int idx;
+ 168              		.loc 1 197 5 is_stmt 1 view .LVU34
+ 198:../common/lpcusb/target/usbhw_lpc.c ****     
+ 199:../common/lpcusb/target/usbhw_lpc.c ****     idx = EP2IDX(bEP);
+ 169              		.loc 1 199 5 view .LVU35
+ 170              	.LBB6:
+ 171              	.LBB7:
+ 166:../common/lpcusb/target/usbhw_lpc.c **** #ifdef LPC17xx
+ 172              		.loc 1 166 19 is_stmt 0 view .LVU36
+ 173 0002 0123     		movs	r3, #1
+ 166:../common/lpcusb/target/usbhw_lpc.c **** #ifdef LPC17xx
+ 174              		.loc 1 166 13 view .LVU37
+ 175 0004 0B4A     		ldr	r2, .L13
+ 176              	.LBE7:
+ 177              	.LBE6:
+ 178              		.loc 1 199 11 view .LVU38
+ 179 0006 4400     		lsls	r4, r0, #1
+ 180 0008 04F01E04 		and	r4, r4, #30
+ 181              		.loc 1 199 9 view .LVU39
+ 182 000c 44EAD014 		orr	r4, r4, r0, lsr #7
+ 183              	.LVL9:
+ 200:../common/lpcusb/target/usbhw_lpc.c ****     
+ 201:../common/lpcusb/target/usbhw_lpc.c ****     // realise EP
+ 202:../common/lpcusb/target/usbhw_lpc.c ****     USBHwEPRealize(idx, wMaxPacketSize);
+ 184              		.loc 1 202 5 is_stmt 1 view .LVU40
+ 185              	.LBB9:
+ 186              	.LBI6:
+ 164:../common/lpcusb/target/usbhw_lpc.c **** {
+ 187              		.loc 1 164 13 view .LVU41
+ 188              	.LBB8:
+ 166:../common/lpcusb/target/usbhw_lpc.c **** #ifdef LPC17xx
+ 189              		.loc 1 166 5 view .LVU42
+ 166:../common/lpcusb/target/usbhw_lpc.c **** #ifdef LPC17xx
+ 190              		.loc 1 166 13 is_stmt 0 view .LVU43
+ 191 0010 1068     		ldr	r0, [r2]
+ 192              	.LVL10:
+ 166:../common/lpcusb/target/usbhw_lpc.c **** #ifdef LPC17xx
+ 193              		.loc 1 166 19 view .LVU44
+ 194 0012 A340     		lsls	r3, r3, r4
+ 166:../common/lpcusb/target/usbhw_lpc.c **** #ifdef LPC17xx
+ 195              		.loc 1 166 13 view .LVU45
+ARM GAS  /tmp/ccJtVQ71.s 			page 8
+
+
+ 196 0014 0343     		orrs	r3, r3, r0
+ 197 0016 1360     		str	r3, [r2]
+ 168:../common/lpcusb/target/usbhw_lpc.c **** #else
+ 198              		.loc 1 168 5 is_stmt 1 view .LVU46
+ 168:../common/lpcusb/target/usbhw_lpc.c **** #else
+ 199              		.loc 1 168 13 is_stmt 0 view .LVU47
+ 200 0018 074B     		ldr	r3, .L13+4
+ 173:../common/lpcusb/target/usbhw_lpc.c **** }
+ 201              		.loc 1 173 5 view .LVU48
+ 202 001a 4FF48070 		mov	r0, #256
+ 168:../common/lpcusb/target/usbhw_lpc.c **** #else
+ 203              		.loc 1 168 13 view .LVU49
+ 204 001e 1C60     		str	r4, [r3]
+ 172:../common/lpcusb/target/usbhw_lpc.c ****     Wait4DevInt(EP_RLZED);
+ 205              		.loc 1 172 5 is_stmt 1 view .LVU50
+ 172:../common/lpcusb/target/usbhw_lpc.c ****     Wait4DevInt(EP_RLZED);
+ 206              		.loc 1 172 17 is_stmt 0 view .LVU51
+ 207 0020 5960     		str	r1, [r3, #4]
+ 173:../common/lpcusb/target/usbhw_lpc.c **** }
+ 208              		.loc 1 173 5 is_stmt 1 view .LVU52
+ 209 0022 FFF7FEFF 		bl	Wait4DevInt
+ 210              	.LVL11:
+ 173:../common/lpcusb/target/usbhw_lpc.c **** }
+ 211              		.loc 1 173 5 is_stmt 0 view .LVU53
+ 212              	.LBE8:
+ 213              	.LBE9:
+ 203:../common/lpcusb/target/usbhw_lpc.c **** 
+ 204:../common/lpcusb/target/usbhw_lpc.c ****     // enable EP
+ 205:../common/lpcusb/target/usbhw_lpc.c ****     USBHwEPEnable(idx, TRUE);
+ 214              		.loc 1 205 5 is_stmt 1 view .LVU54
+ 215              	.LBB10:
+ 216              	.LBI10:
+ 183:../common/lpcusb/target/usbhw_lpc.c **** {
+ 217              		.loc 1 183 13 view .LVU55
+ 218              	.LBB11:
+ 185:../common/lpcusb/target/usbhw_lpc.c **** }
+ 219              		.loc 1 185 5 view .LVU56
+ 220 0026 44F04000 		orr	r0, r4, #64
+ 221 002a 0021     		movs	r1, #0
+ 222              	.LVL12:
+ 185:../common/lpcusb/target/usbhw_lpc.c **** }
+ 223              		.loc 1 185 5 is_stmt 0 view .LVU57
+ 224              	.LBE11:
+ 225              	.LBE10:
+ 206:../common/lpcusb/target/usbhw_lpc.c **** }
+ 226              		.loc 1 206 1 view .LVU58
+ 227 002c BDE81040 		pop	{r4, lr}
+ 228              		.cfi_restore 14
+ 229              		.cfi_restore 4
+ 230              		.cfi_def_cfa_offset 0
+ 231              	.LVL13:
+ 232              	.LBB13:
+ 233              	.LBB12:
+ 185:../common/lpcusb/target/usbhw_lpc.c **** }
+ 234              		.loc 1 185 5 view .LVU59
+ 235 0030 FFF7FEBF 		b	USBHwCmdWrite
+ 236              	.LVL14:
+ARM GAS  /tmp/ccJtVQ71.s 			page 9
+
+
+ 237              	.L14:
+ 238              		.align	2
+ 239              	.L13:
+ 240 0034 44C20050 		.word	1342227012
+ 241 0038 48C20050 		.word	1342227016
+ 242              	.LBE12:
+ 243              	.LBE13:
+ 244              		.cfi_endproc
+ 245              	.LFE6:
+ 247              		.section	.text.USBHwRegisterEPIntHandler,"ax",%progbits
+ 248              		.align	1
+ 249              		.global	USBHwRegisterEPIntHandler
+ 250              		.syntax unified
+ 251              		.thumb
+ 252              		.thumb_func
+ 253              		.fpu softvfp
+ 255              	USBHwRegisterEPIntHandler:
+ 256              	.LVL15:
+ 257              	.LFB7:
+ 207:../common/lpcusb/target/usbhw_lpc.c **** 
+ 208:../common/lpcusb/target/usbhw_lpc.c **** 
+ 209:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 210:../common/lpcusb/target/usbhw_lpc.c ****     Registers an endpoint event callback
+ 211:../common/lpcusb/target/usbhw_lpc.c ****         
+ 212:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] bEP             Endpoint number
+ 213:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] pfnHandler      Callback function
+ 214:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 215:../common/lpcusb/target/usbhw_lpc.c **** void USBHwRegisterEPIntHandler(U8 bEP, TFnEPIntHandler *pfnHandler)
+ 216:../common/lpcusb/target/usbhw_lpc.c **** {
+ 258              		.loc 1 216 1 is_stmt 1 view -0
+ 259              		.cfi_startproc
+ 260              		@ args = 0, pretend = 0, frame = 0
+ 261              		@ frame_needed = 0, uses_anonymous_args = 0
+ 262              		@ link register save eliminated.
+ 263              		.loc 1 216 1 is_stmt 0 view .LVU61
+ 217:../common/lpcusb/target/usbhw_lpc.c ****     int idx;
+ 264              		.loc 1 217 5 is_stmt 1 view .LVU62
+ 218:../common/lpcusb/target/usbhw_lpc.c ****     
+ 219:../common/lpcusb/target/usbhw_lpc.c ****     idx = EP2IDX(bEP);
+ 265              		.loc 1 219 5 view .LVU63
+ 220:../common/lpcusb/target/usbhw_lpc.c **** 
+ 221:../common/lpcusb/target/usbhw_lpc.c ****     ASSERT(idx<32);
+ 222:../common/lpcusb/target/usbhw_lpc.c **** 
+ 223:../common/lpcusb/target/usbhw_lpc.c ****     /* add handler to list of EP handlers */
+ 224:../common/lpcusb/target/usbhw_lpc.c ****     _apfnEPIntHandlers[idx / 2] = pfnHandler;
+ 266              		.loc 1 224 33 is_stmt 0 view .LVU64
+ 267 0000 0A4A     		ldr	r2, .L16
+ 219:../common/lpcusb/target/usbhw_lpc.c **** 
+ 268              		.loc 1 219 11 view .LVU65
+ 269 0002 4300     		lsls	r3, r0, #1
+ 270 0004 03F01E03 		and	r3, r3, #30
+ 271              		.loc 1 224 33 view .LVU66
+ 272 0008 42F81310 		str	r1, [r2, r3, lsl #1]
+ 219:../common/lpcusb/target/usbhw_lpc.c **** 
+ 273              		.loc 1 219 9 view .LVU67
+ 274 000c 43EAD010 		orr	r0, r3, r0, lsr #7
+ 275              	.LVL16:
+ARM GAS  /tmp/ccJtVQ71.s 			page 10
+
+
+ 221:../common/lpcusb/target/usbhw_lpc.c **** 
+ 276              		.loc 1 221 19 is_stmt 1 view .LVU68
+ 277              		.loc 1 224 5 view .LVU69
+ 225:../common/lpcusb/target/usbhw_lpc.c ****     
+ 226:../common/lpcusb/target/usbhw_lpc.c ****     /* enable EP interrupt */
+ 227:../common/lpcusb/target/usbhw_lpc.c ****     USBEpIntEn |= (1 << idx);
+ 278              		.loc 1 227 5 view .LVU70
+ 279              		.loc 1 227 22 is_stmt 0 view .LVU71
+ 280 0010 0123     		movs	r3, #1
+ 281              		.loc 1 227 16 view .LVU72
+ 282 0012 074A     		ldr	r2, .L16+4
+ 283              		.loc 1 227 22 view .LVU73
+ 284 0014 03FA00F0 		lsl	r0, r3, r0
+ 285              	.LVL17:
+ 286              		.loc 1 227 16 view .LVU74
+ 287 0018 1168     		ldr	r1, [r2]
+ 288              	.LVL18:
+ 289              		.loc 1 227 16 view .LVU75
+ 290 001a 0843     		orrs	r0, r0, r1
+ 291 001c 1060     		str	r0, [r2]
+ 228:../common/lpcusb/target/usbhw_lpc.c ****     USBDevIntEn |= EP_SLOW;
+ 292              		.loc 1 228 5 is_stmt 1 view .LVU76
+ 293              		.loc 1 228 17 is_stmt 0 view .LVU77
+ 294 001e 52F8303C 		ldr	r3, [r2, #-48]
+ 295 0022 43F00403 		orr	r3, r3, #4
+ 296 0026 42F8303C 		str	r3, [r2, #-48]
+ 229:../common/lpcusb/target/usbhw_lpc.c ****     
+ 230:../common/lpcusb/target/usbhw_lpc.c ****     DBG("Registered handler for EP 0x%x\n", bEP);
+ 297              		.loc 1 230 49 is_stmt 1 view .LVU78
+ 231:../common/lpcusb/target/usbhw_lpc.c **** }
+ 298              		.loc 1 231 1 is_stmt 0 view .LVU79
+ 299 002a 7047     		bx	lr
+ 300              	.L17:
+ 301              		.align	2
+ 302              	.L16:
+ 303 002c 00000000 		.word	.LANCHOR0
+ 304 0030 34C20050 		.word	1342226996
+ 305              		.cfi_endproc
+ 306              	.LFE7:
+ 308              		.section	.text.USBHwRegisterDevIntHandler,"ax",%progbits
+ 309              		.align	1
+ 310              		.global	USBHwRegisterDevIntHandler
+ 311              		.syntax unified
+ 312              		.thumb
+ 313              		.thumb_func
+ 314              		.fpu softvfp
+ 316              	USBHwRegisterDevIntHandler:
+ 317              	.LVL19:
+ 318              	.LFB8:
+ 232:../common/lpcusb/target/usbhw_lpc.c **** 
+ 233:../common/lpcusb/target/usbhw_lpc.c **** 
+ 234:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 235:../common/lpcusb/target/usbhw_lpc.c ****     Registers an device status callback
+ 236:../common/lpcusb/target/usbhw_lpc.c ****         
+ 237:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] pfnHandler  Callback function
+ 238:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 239:../common/lpcusb/target/usbhw_lpc.c **** void USBHwRegisterDevIntHandler(TFnDevIntHandler *pfnHandler)
+ARM GAS  /tmp/ccJtVQ71.s 			page 11
+
+
+ 240:../common/lpcusb/target/usbhw_lpc.c **** {
+ 319              		.loc 1 240 1 is_stmt 1 view -0
+ 320              		.cfi_startproc
+ 321              		@ args = 0, pretend = 0, frame = 0
+ 322              		@ frame_needed = 0, uses_anonymous_args = 0
+ 323              		@ link register save eliminated.
+ 324              		.loc 1 240 1 is_stmt 0 view .LVU81
+ 241:../common/lpcusb/target/usbhw_lpc.c ****     _pfnDevIntHandler = pfnHandler;
+ 325              		.loc 1 241 5 is_stmt 1 view .LVU82
+ 326              		.loc 1 241 23 is_stmt 0 view .LVU83
+ 327 0000 034B     		ldr	r3, .L19
+ 242:../common/lpcusb/target/usbhw_lpc.c ****     
+ 243:../common/lpcusb/target/usbhw_lpc.c ****     // enable device interrupt
+ 244:../common/lpcusb/target/usbhw_lpc.c ****     USBDevIntEn |= DEV_STAT;
+ 328              		.loc 1 244 17 view .LVU84
+ 329 0002 044A     		ldr	r2, .L19+4
+ 241:../common/lpcusb/target/usbhw_lpc.c ****     _pfnDevIntHandler = pfnHandler;
+ 330              		.loc 1 241 23 view .LVU85
+ 331 0004 1864     		str	r0, [r3, #64]
+ 332              		.loc 1 244 5 is_stmt 1 view .LVU86
+ 333              		.loc 1 244 17 is_stmt 0 view .LVU87
+ 334 0006 1368     		ldr	r3, [r2]
+ 335 0008 43F00803 		orr	r3, r3, #8
+ 336 000c 1360     		str	r3, [r2]
+ 245:../common/lpcusb/target/usbhw_lpc.c **** 
+ 246:../common/lpcusb/target/usbhw_lpc.c ****     DBG("Registered handler for device status\n");
+ 337              		.loc 1 246 50 is_stmt 1 view .LVU88
+ 247:../common/lpcusb/target/usbhw_lpc.c **** }
+ 338              		.loc 1 247 1 is_stmt 0 view .LVU89
+ 339 000e 7047     		bx	lr
+ 340              	.L20:
+ 341              		.align	2
+ 342              	.L19:
+ 343 0010 00000000 		.word	.LANCHOR0
+ 344 0014 04C20050 		.word	1342226948
+ 345              		.cfi_endproc
+ 346              	.LFE8:
+ 348              		.section	.text.USBHwRegisterFrameHandler,"ax",%progbits
+ 349              		.align	1
+ 350              		.global	USBHwRegisterFrameHandler
+ 351              		.syntax unified
+ 352              		.thumb
+ 353              		.thumb_func
+ 354              		.fpu softvfp
+ 356              	USBHwRegisterFrameHandler:
+ 357              	.LVL20:
+ 358              	.LFB9:
+ 248:../common/lpcusb/target/usbhw_lpc.c **** 
+ 249:../common/lpcusb/target/usbhw_lpc.c **** 
+ 250:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 251:../common/lpcusb/target/usbhw_lpc.c ****     Registers the frame callback
+ 252:../common/lpcusb/target/usbhw_lpc.c ****         
+ 253:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] pfnHandler  Callback function
+ 254:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 255:../common/lpcusb/target/usbhw_lpc.c **** void USBHwRegisterFrameHandler(TFnFrameHandler *pfnHandler)
+ 256:../common/lpcusb/target/usbhw_lpc.c **** {
+ 359              		.loc 1 256 1 is_stmt 1 view -0
+ARM GAS  /tmp/ccJtVQ71.s 			page 12
+
+
+ 360              		.cfi_startproc
+ 361              		@ args = 0, pretend = 0, frame = 0
+ 362              		@ frame_needed = 0, uses_anonymous_args = 0
+ 363              		@ link register save eliminated.
+ 364              		.loc 1 256 1 is_stmt 0 view .LVU91
+ 257:../common/lpcusb/target/usbhw_lpc.c ****     _pfnFrameHandler = pfnHandler;
+ 365              		.loc 1 257 5 is_stmt 1 view .LVU92
+ 366              		.loc 1 257 22 is_stmt 0 view .LVU93
+ 367 0000 034B     		ldr	r3, .L22
+ 258:../common/lpcusb/target/usbhw_lpc.c ****     
+ 259:../common/lpcusb/target/usbhw_lpc.c ****     // enable device interrupt
+ 260:../common/lpcusb/target/usbhw_lpc.c ****     USBDevIntEn |= FRAME;
+ 368              		.loc 1 260 17 view .LVU94
+ 369 0002 044A     		ldr	r2, .L22+4
+ 257:../common/lpcusb/target/usbhw_lpc.c ****     _pfnFrameHandler = pfnHandler;
+ 370              		.loc 1 257 22 view .LVU95
+ 371 0004 5864     		str	r0, [r3, #68]
+ 372              		.loc 1 260 5 is_stmt 1 view .LVU96
+ 373              		.loc 1 260 17 is_stmt 0 view .LVU97
+ 374 0006 1368     		ldr	r3, [r2]
+ 375 0008 43F00103 		orr	r3, r3, #1
+ 376 000c 1360     		str	r3, [r2]
+ 261:../common/lpcusb/target/usbhw_lpc.c **** 
+ 262:../common/lpcusb/target/usbhw_lpc.c ****     DBG("Registered handler for frame\n");
+ 377              		.loc 1 262 42 is_stmt 1 view .LVU98
+ 263:../common/lpcusb/target/usbhw_lpc.c **** }
+ 378              		.loc 1 263 1 is_stmt 0 view .LVU99
+ 379 000e 7047     		bx	lr
+ 380              	.L23:
+ 381              		.align	2
+ 382              	.L22:
+ 383 0010 00000000 		.word	.LANCHOR0
+ 384 0014 04C20050 		.word	1342226948
+ 385              		.cfi_endproc
+ 386              	.LFE9:
+ 388              		.section	.text.USBHwSetAddress,"ax",%progbits
+ 389              		.align	1
+ 390              		.global	USBHwSetAddress
+ 391              		.syntax unified
+ 392              		.thumb
+ 393              		.thumb_func
+ 394              		.fpu softvfp
+ 396              	USBHwSetAddress:
+ 397              	.LVL21:
+ 398              	.LFB10:
+ 264:../common/lpcusb/target/usbhw_lpc.c **** 
+ 265:../common/lpcusb/target/usbhw_lpc.c **** 
+ 266:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 267:../common/lpcusb/target/usbhw_lpc.c ****     Sets the USB address.
+ 268:../common/lpcusb/target/usbhw_lpc.c ****         
+ 269:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] bAddr       Device address to set
+ 270:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 271:../common/lpcusb/target/usbhw_lpc.c **** void USBHwSetAddress(U8 bAddr)
+ 272:../common/lpcusb/target/usbhw_lpc.c **** {
+ 399              		.loc 1 272 1 is_stmt 1 view -0
+ 400              		.cfi_startproc
+ 401              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  /tmp/ccJtVQ71.s 			page 13
+
+
+ 402              		@ frame_needed = 0, uses_anonymous_args = 0
+ 403              		@ link register save eliminated.
+ 404              		.loc 1 272 1 is_stmt 0 view .LVU101
+ 273:../common/lpcusb/target/usbhw_lpc.c ****     USBHwCmdWrite(CMD_DEV_SET_ADDRESS, DEV_EN | bAddr);
+ 405              		.loc 1 273 5 is_stmt 1 view .LVU102
+ 406 0000 40F08001 		orr	r1, r0, #128
+ 407 0004 D020     		movs	r0, #208
+ 408              	.LVL22:
+ 409              		.loc 1 273 5 is_stmt 0 view .LVU103
+ 410 0006 FFF7FEBF 		b	USBHwCmdWrite
+ 411              	.LVL23:
+ 412              		.cfi_endproc
+ 413              	.LFE10:
+ 415              		.section	.text.USBHwConnect,"ax",%progbits
+ 416              		.align	1
+ 417              		.global	USBHwConnect
+ 418              		.syntax unified
+ 419              		.thumb
+ 420              		.thumb_func
+ 421              		.fpu softvfp
+ 423              	USBHwConnect:
+ 424              	.LVL24:
+ 425              	.LFB11:
+ 274:../common/lpcusb/target/usbhw_lpc.c **** }
+ 275:../common/lpcusb/target/usbhw_lpc.c **** 
+ 276:../common/lpcusb/target/usbhw_lpc.c **** 
+ 277:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 278:../common/lpcusb/target/usbhw_lpc.c ****     Connects or disconnects from the USB bus
+ 279:../common/lpcusb/target/usbhw_lpc.c ****         
+ 280:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] fConnect    If TRUE, connect, otherwise disconnect
+ 281:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 282:../common/lpcusb/target/usbhw_lpc.c **** void USBHwConnect(BOOL fConnect)
+ 283:../common/lpcusb/target/usbhw_lpc.c **** {
+ 426              		.loc 1 283 1 is_stmt 1 view -0
+ 427              		.cfi_startproc
+ 428              		@ args = 0, pretend = 0, frame = 0
+ 429              		@ frame_needed = 0, uses_anonymous_args = 0
+ 430              		@ link register save eliminated.
+ 431              		.loc 1 283 1 is_stmt 0 view .LVU105
+ 284:../common/lpcusb/target/usbhw_lpc.c **** #ifdef LPC23xx
+ 285:../common/lpcusb/target/usbhw_lpc.c **** #ifndef LPC2378_PORTB
+ 286:../common/lpcusb/target/usbhw_lpc.c ****   if(fConnect)
+ 287:../common/lpcusb/target/usbhw_lpc.c ****     FIO2CLR = (1<<9);
+ 288:../common/lpcusb/target/usbhw_lpc.c ****   else
+ 289:../common/lpcusb/target/usbhw_lpc.c ****     FIO2SET = (1<<9);
+ 290:../common/lpcusb/target/usbhw_lpc.c **** #else
+ 291:../common/lpcusb/target/usbhw_lpc.c ****   if(fConnect)
+ 292:../common/lpcusb/target/usbhw_lpc.c ****     FIO0CLR = (1<<14);
+ 293:../common/lpcusb/target/usbhw_lpc.c ****   else
+ 294:../common/lpcusb/target/usbhw_lpc.c ****     FIO0SET = (1<<14);
+ 295:../common/lpcusb/target/usbhw_lpc.c **** #endif
+ 296:../common/lpcusb/target/usbhw_lpc.c **** #endif
+ 297:../common/lpcusb/target/usbhw_lpc.c ****     USBHwCmdWrite(CMD_DEV_STATUS, fConnect ? CON : 0);
+ 432              		.loc 1 297 5 is_stmt 1 view .LVU106
+ 433 0000 011E     		subs	r1, r0, #0
+ 434 0002 18BF     		it	ne
+ 435 0004 0121     		movne	r1, #1
+ARM GAS  /tmp/ccJtVQ71.s 			page 14
+
+
+ 436 0006 FE20     		movs	r0, #254
+ 437              	.LVL25:
+ 438              		.loc 1 297 5 is_stmt 0 view .LVU107
+ 439 0008 FFF7FEBF 		b	USBHwCmdWrite
+ 440              	.LVL26:
+ 441              		.cfi_endproc
+ 442              	.LFE11:
+ 444              		.section	.text.USBHwNakIntEnable,"ax",%progbits
+ 445              		.align	1
+ 446              		.global	USBHwNakIntEnable
+ 447              		.syntax unified
+ 448              		.thumb
+ 449              		.thumb_func
+ 450              		.fpu softvfp
+ 452              	USBHwNakIntEnable:
+ 453              	.LVL27:
+ 454              	.LFB12:
+ 298:../common/lpcusb/target/usbhw_lpc.c **** }
+ 299:../common/lpcusb/target/usbhw_lpc.c **** 
+ 300:../common/lpcusb/target/usbhw_lpc.c **** 
+ 301:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 302:../common/lpcusb/target/usbhw_lpc.c ****     Enables interrupt on NAK condition
+ 303:../common/lpcusb/target/usbhw_lpc.c ****         
+ 304:../common/lpcusb/target/usbhw_lpc.c ****     For IN endpoints a NAK is generated when the host wants to read data
+ 305:../common/lpcusb/target/usbhw_lpc.c ****     from the device, but none is available in the endpoint buffer.
+ 306:../common/lpcusb/target/usbhw_lpc.c ****     For OUT endpoints a NAK is generated when the host wants to write data
+ 307:../common/lpcusb/target/usbhw_lpc.c ****     to the device, but the endpoint buffer is still full.
+ 308:../common/lpcusb/target/usbhw_lpc.c ****     
+ 309:../common/lpcusb/target/usbhw_lpc.c ****     The endpoint interrupt handlers can distinguish regular (ACK) interrupts
+ 310:../common/lpcusb/target/usbhw_lpc.c ****     from NAK interrupt by checking the bits in their bEPStatus argument.
+ 311:../common/lpcusb/target/usbhw_lpc.c ****     
+ 312:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] bIntBits    Bitmap indicating which NAK interrupts to enable
+ 313:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 314:../common/lpcusb/target/usbhw_lpc.c **** void USBHwNakIntEnable(U8 bIntBits)
+ 315:../common/lpcusb/target/usbhw_lpc.c **** {
+ 455              		.loc 1 315 1 is_stmt 1 view -0
+ 456              		.cfi_startproc
+ 457              		@ args = 0, pretend = 0, frame = 0
+ 458              		@ frame_needed = 0, uses_anonymous_args = 0
+ 459              		@ link register save eliminated.
+ 460              		.loc 1 315 1 is_stmt 0 view .LVU109
+ 316:../common/lpcusb/target/usbhw_lpc.c ****     USBHwCmdWrite(CMD_DEV_SET_MODE, bIntBits);
+ 461              		.loc 1 316 5 is_stmt 1 view .LVU110
+ 315:../common/lpcusb/target/usbhw_lpc.c ****     USBHwCmdWrite(CMD_DEV_SET_MODE, bIntBits);
+ 462              		.loc 1 315 1 is_stmt 0 view .LVU111
+ 463 0000 0146     		mov	r1, r0
+ 464              		.loc 1 316 5 view .LVU112
+ 465 0002 F320     		movs	r0, #243
+ 466              	.LVL28:
+ 467              		.loc 1 316 5 view .LVU113
+ 468 0004 FFF7FEBF 		b	USBHwCmdWrite
+ 469              	.LVL29:
+ 470              		.cfi_endproc
+ 471              	.LFE12:
+ 473              		.section	.text.USBHwEPGetStatus,"ax",%progbits
+ 474              		.align	1
+ 475              		.global	USBHwEPGetStatus
+ARM GAS  /tmp/ccJtVQ71.s 			page 15
+
+
+ 476              		.syntax unified
+ 477              		.thumb
+ 478              		.thumb_func
+ 479              		.fpu softvfp
+ 481              	USBHwEPGetStatus:
+ 482              	.LVL30:
+ 483              	.LFB13:
+ 317:../common/lpcusb/target/usbhw_lpc.c **** }
+ 318:../common/lpcusb/target/usbhw_lpc.c **** 
+ 319:../common/lpcusb/target/usbhw_lpc.c **** 
+ 320:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 321:../common/lpcusb/target/usbhw_lpc.c ****     Gets the status from a specific endpoint.
+ 322:../common/lpcusb/target/usbhw_lpc.c ****         
+ 323:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] bEP     Endpoint number
+ 324:../common/lpcusb/target/usbhw_lpc.c ****     @return Endpoint status byte (containing EP_STATUS_xxx bits)
+ 325:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 326:../common/lpcusb/target/usbhw_lpc.c **** U8  USBHwEPGetStatus(U8 bEP)
+ 327:../common/lpcusb/target/usbhw_lpc.c **** {
+ 484              		.loc 1 327 1 is_stmt 1 view -0
+ 485              		.cfi_startproc
+ 486              		@ args = 0, pretend = 0, frame = 0
+ 487              		@ frame_needed = 0, uses_anonymous_args = 0
+ 488              		.loc 1 327 1 is_stmt 0 view .LVU115
+ 489 0000 08B5     		push	{r3, lr}
+ 490              		.cfi_def_cfa_offset 8
+ 491              		.cfi_offset 3, -8
+ 492              		.cfi_offset 14, -4
+ 328:../common/lpcusb/target/usbhw_lpc.c ****     int idx = EP2IDX(bEP);
+ 493              		.loc 1 328 5 is_stmt 1 view .LVU116
+ 494              		.loc 1 328 15 is_stmt 0 view .LVU117
+ 495 0002 4300     		lsls	r3, r0, #1
+ 496 0004 03F01E03 		and	r3, r3, #30
+ 497              		.loc 1 328 9 view .LVU118
+ 498 0008 43EAD011 		orr	r1, r3, r0, lsr #7
+ 499              	.LVL31:
+ 329:../common/lpcusb/target/usbhw_lpc.c **** 
+ 330:../common/lpcusb/target/usbhw_lpc.c ****     return USBHwCmdRead(CMD_EP_SELECT | idx);
+ 500              		.loc 1 330 5 is_stmt 1 view .LVU119
+ 501              	.LBB16:
+ 502              	.LBI16:
+ 141:../common/lpcusb/target/usbhw_lpc.c **** {
+ 503              		.loc 1 141 11 view .LVU120
+ 504              	.LBB17:
+ 144:../common/lpcusb/target/usbhw_lpc.c ****     
+ 505              		.loc 1 144 5 view .LVU121
+ 506 000c 0846     		mov	r0, r1
+ 507              	.LVL32:
+ 144:../common/lpcusb/target/usbhw_lpc.c ****     
+ 508              		.loc 1 144 5 is_stmt 0 view .LVU122
+ 509 000e FFF7FEFF 		bl	USBHwCmd
+ 510              	.LVL33:
+ 147:../common/lpcusb/target/usbhw_lpc.c ****     Wait4DevInt(CDFULL);
+ 511              		.loc 1 147 5 is_stmt 1 view .LVU123
+ 147:../common/lpcusb/target/usbhw_lpc.c ****     Wait4DevInt(CDFULL);
+ 512              		.loc 1 147 16 is_stmt 0 view .LVU124
+ 513 0012 064B     		ldr	r3, .L28
+ 147:../common/lpcusb/target/usbhw_lpc.c ****     Wait4DevInt(CDFULL);
+ARM GAS  /tmp/ccJtVQ71.s 			page 16
+
+
+ 514              		.loc 1 147 37 view .LVU125
+ 515 0014 0904     		lsls	r1, r1, #16
+ 516              	.LVL34:
+ 147:../common/lpcusb/target/usbhw_lpc.c ****     Wait4DevInt(CDFULL);
+ 517              		.loc 1 147 29 view .LVU126
+ 518 0016 41F40071 		orr	r1, r1, #512
+ 147:../common/lpcusb/target/usbhw_lpc.c ****     Wait4DevInt(CDFULL);
+ 519              		.loc 1 147 16 view .LVU127
+ 520 001a 1960     		str	r1, [r3]
+ 148:../common/lpcusb/target/usbhw_lpc.c ****     return USBCmdData;
+ 521              		.loc 1 148 5 is_stmt 1 view .LVU128
+ 522 001c 2020     		movs	r0, #32
+ 523 001e FFF7FEFF 		bl	Wait4DevInt
+ 524              	.LVL35:
+ 149:../common/lpcusb/target/usbhw_lpc.c **** }
+ 525              		.loc 1 149 5 view .LVU129
+ 149:../common/lpcusb/target/usbhw_lpc.c **** }
+ 526              		.loc 1 149 12 is_stmt 0 view .LVU130
+ 527 0022 034B     		ldr	r3, .L28+4
+ 528 0024 1868     		ldr	r0, [r3]
+ 149:../common/lpcusb/target/usbhw_lpc.c **** }
+ 529              		.loc 1 149 12 view .LVU131
+ 530              	.LBE17:
+ 531              	.LBE16:
+ 331:../common/lpcusb/target/usbhw_lpc.c **** }
+ 532              		.loc 1 331 1 view .LVU132
+ 533 0026 C0B2     		uxtb	r0, r0
+ 534 0028 08BD     		pop	{r3, pc}
+ 535              	.L29:
+ 536 002a 00BF     		.align	2
+ 537              	.L28:
+ 538 002c 10C20050 		.word	1342226960
+ 539 0030 14C20050 		.word	1342226964
+ 540              		.cfi_endproc
+ 541              	.LFE13:
+ 543              		.section	.text.USBHwEPStall,"ax",%progbits
+ 544              		.align	1
+ 545              		.global	USBHwEPStall
+ 546              		.syntax unified
+ 547              		.thumb
+ 548              		.thumb_func
+ 549              		.fpu softvfp
+ 551              	USBHwEPStall:
+ 552              	.LVL36:
+ 553              	.LFB14:
+ 332:../common/lpcusb/target/usbhw_lpc.c **** 
+ 333:../common/lpcusb/target/usbhw_lpc.c **** 
+ 334:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 335:../common/lpcusb/target/usbhw_lpc.c ****     Sets the stalled property of an endpoint
+ 336:../common/lpcusb/target/usbhw_lpc.c ****         
+ 337:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] bEP     Endpoint number
+ 338:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] fStall  TRUE to stall, FALSE to unstall
+ 339:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 340:../common/lpcusb/target/usbhw_lpc.c **** void USBHwEPStall(U8 bEP, BOOL fStall)
+ 341:../common/lpcusb/target/usbhw_lpc.c **** {
+ 554              		.loc 1 341 1 is_stmt 1 view -0
+ 555              		.cfi_startproc
+ARM GAS  /tmp/ccJtVQ71.s 			page 17
+
+
+ 556              		@ args = 0, pretend = 0, frame = 0
+ 557              		@ frame_needed = 0, uses_anonymous_args = 0
+ 558              		@ link register save eliminated.
+ 559              		.loc 1 341 1 is_stmt 0 view .LVU134
+ 342:../common/lpcusb/target/usbhw_lpc.c ****     int idx = EP2IDX(bEP);
+ 560              		.loc 1 342 5 is_stmt 1 view .LVU135
+ 561              	.LVL37:
+ 343:../common/lpcusb/target/usbhw_lpc.c **** 
+ 344:../common/lpcusb/target/usbhw_lpc.c ****     USBHwCmdWrite(CMD_EP_SET_STATUS | idx, fStall ? EP_ST : 0);
+ 562              		.loc 1 344 5 view .LVU136
+ 342:../common/lpcusb/target/usbhw_lpc.c ****     int idx = EP2IDX(bEP);
+ 563              		.loc 1 342 15 is_stmt 0 view .LVU137
+ 564 0000 4300     		lsls	r3, r0, #1
+ 565 0002 03F01E03 		and	r3, r3, #30
+ 342:../common/lpcusb/target/usbhw_lpc.c ****     int idx = EP2IDX(bEP);
+ 566              		.loc 1 342 9 view .LVU138
+ 567 0006 43EAD010 		orr	r0, r3, r0, lsr #7
+ 568              	.LVL38:
+ 569              		.loc 1 344 5 view .LVU139
+ 570 000a 0039     		subs	r1, r1, #0
+ 571              		.loc 1 344 5 view .LVU140
+ 572 000c 18BF     		it	ne
+ 573 000e 0121     		movne	r1, #1
+ 574              	.LVL39:
+ 575              		.loc 1 344 5 view .LVU141
+ 576 0010 40F04000 		orr	r0, r0, #64
+ 577 0014 FFF7FEBF 		b	USBHwCmdWrite
+ 578              	.LVL40:
+ 579              		.cfi_endproc
+ 580              	.LFE14:
+ 582              		.section	.text.USBHwEPWrite,"ax",%progbits
+ 583              		.align	1
+ 584              		.global	USBHwEPWrite
+ 585              		.syntax unified
+ 586              		.thumb
+ 587              		.thumb_func
+ 588              		.fpu softvfp
+ 590              	USBHwEPWrite:
+ 591              	.LVL41:
+ 592              	.LFB15:
+ 345:../common/lpcusb/target/usbhw_lpc.c **** }
+ 346:../common/lpcusb/target/usbhw_lpc.c **** 
+ 347:../common/lpcusb/target/usbhw_lpc.c **** 
+ 348:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 349:../common/lpcusb/target/usbhw_lpc.c ****     Writes data to an endpoint buffer
+ 350:../common/lpcusb/target/usbhw_lpc.c ****         
+ 351:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] bEP     Endpoint number
+ 352:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] pbBuf   Endpoint data
+ 353:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] iLen    Number of bytes to write
+ 354:../common/lpcusb/target/usbhw_lpc.c ****             
+ 355:../common/lpcusb/target/usbhw_lpc.c ****     @return number of bytes written into the endpoint buffer
+ 356:../common/lpcusb/target/usbhw_lpc.c **** */
+ 357:../common/lpcusb/target/usbhw_lpc.c **** int USBHwEPWrite(U8 bEP, U8 *pbBuf, U32 iLen)
+ 358:../common/lpcusb/target/usbhw_lpc.c **** {
+ 593              		.loc 1 358 1 is_stmt 1 view -0
+ 594              		.cfi_startproc
+ 595              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  /tmp/ccJtVQ71.s 			page 18
+
+
+ 596              		@ frame_needed = 0, uses_anonymous_args = 0
+ 597              		.loc 1 358 1 is_stmt 0 view .LVU143
+ 598 0000 38B5     		push	{r3, r4, r5, lr}
+ 599              		.cfi_def_cfa_offset 16
+ 600              		.cfi_offset 3, -16
+ 601              		.cfi_offset 4, -12
+ 602              		.cfi_offset 5, -8
+ 603              		.cfi_offset 14, -4
+ 359:../common/lpcusb/target/usbhw_lpc.c ****     U32 idx;
+ 604              		.loc 1 359 5 is_stmt 1 view .LVU144
+ 360:../common/lpcusb/target/usbhw_lpc.c ****     
+ 361:../common/lpcusb/target/usbhw_lpc.c ****     idx = EP2IDX(bEP);
+ 605              		.loc 1 361 5 view .LVU145
+ 358:../common/lpcusb/target/usbhw_lpc.c ****     U32 idx;
+ 606              		.loc 1 358 1 is_stmt 0 view .LVU146
+ 607 0002 0346     		mov	r3, r0
+ 608 0004 1546     		mov	r5, r2
+ 609              		.loc 1 361 11 view .LVU147
+ 610 0006 4000     		lsls	r0, r0, #1
+ 611              	.LVL42:
+ 612              		.loc 1 361 11 view .LVU148
+ 613 0008 00F01E00 		and	r0, r0, #30
+ 614 000c 40EAD310 		orr	r0, r0, r3, lsr #7
+ 615              	.LVL43:
+ 362:../common/lpcusb/target/usbhw_lpc.c ****     
+ 363:../common/lpcusb/target/usbhw_lpc.c ****     // set write enable for specific endpoint
+ 364:../common/lpcusb/target/usbhw_lpc.c ****     USBCtrl = WR_EN | ((bEP & 0xF) << 2);
+ 616              		.loc 1 364 5 is_stmt 1 view .LVU149
+ 617              		.loc 1 364 36 is_stmt 0 view .LVU150
+ 618 0010 9B00     		lsls	r3, r3, #2
+ 619              		.loc 1 364 13 view .LVU151
+ 620 0012 0D4C     		ldr	r4, .L34
+ 621              		.loc 1 364 36 view .LVU152
+ 622 0014 03F03C03 		and	r3, r3, #60
+ 623              		.loc 1 364 21 view .LVU153
+ 624 0018 43F00203 		orr	r3, r3, #2
+ 625              		.loc 1 364 13 view .LVU154
+ 626 001c 2360     		str	r3, [r4]
+ 365:../common/lpcusb/target/usbhw_lpc.c ****     
+ 366:../common/lpcusb/target/usbhw_lpc.c ****     // set packet length
+ 367:../common/lpcusb/target/usbhw_lpc.c ****     USBTxPLen = iLen;
+ 627              		.loc 1 367 5 is_stmt 1 view .LVU155
+ 628              		.loc 1 367 15 is_stmt 0 view .LVU156
+ 629 001e 0B4B     		ldr	r3, .L34+4
+ 630 0020 1A60     		str	r2, [r3]
+ 368:../common/lpcusb/target/usbhw_lpc.c ****     
+ 369:../common/lpcusb/target/usbhw_lpc.c ****     // write data
+ 370:../common/lpcusb/target/usbhw_lpc.c ****     while (USBCtrl & WR_EN) {
+ 631              		.loc 1 370 5 is_stmt 1 view .LVU157
+ 632 0022 2346     		mov	r3, r4
+ 371:../common/lpcusb/target/usbhw_lpc.c ****         USBTxData = (pbBuf[3] << 24) | (pbBuf[2] << 16) | (pbBuf[1] << 8) | pbBuf[0];
+ 633              		.loc 1 371 19 is_stmt 0 view .LVU158
+ 634 0024 0C3C     		subs	r4, r4, #12
+ 635              	.LVL44:
+ 636              	.L32:
+ 370:../common/lpcusb/target/usbhw_lpc.c ****         USBTxData = (pbBuf[3] << 24) | (pbBuf[2] << 16) | (pbBuf[1] << 8) | pbBuf[0];
+ 637              		.loc 1 370 11 is_stmt 1 view .LVU159
+ARM GAS  /tmp/ccJtVQ71.s 			page 19
+
+
+ 370:../common/lpcusb/target/usbhw_lpc.c ****         USBTxData = (pbBuf[3] << 24) | (pbBuf[2] << 16) | (pbBuf[1] << 8) | pbBuf[0];
+ 638              		.loc 1 370 12 is_stmt 0 view .LVU160
+ 639 0026 1A68     		ldr	r2, [r3]
+ 370:../common/lpcusb/target/usbhw_lpc.c ****         USBTxData = (pbBuf[3] << 24) | (pbBuf[2] << 16) | (pbBuf[1] << 8) | pbBuf[0];
+ 640              		.loc 1 370 11 view .LVU161
+ 641 0028 12F00202 		ands	r2, r2, #2
+ 642 002c 07D1     		bne	.L33
+ 372:../common/lpcusb/target/usbhw_lpc.c ****         pbBuf += 4;
+ 373:../common/lpcusb/target/usbhw_lpc.c ****     }
+ 374:../common/lpcusb/target/usbhw_lpc.c **** 
+ 375:../common/lpcusb/target/usbhw_lpc.c ****     USBCtrl = 0;
+ 643              		.loc 1 375 5 is_stmt 1 view .LVU162
+ 644              		.loc 1 375 13 is_stmt 0 view .LVU163
+ 645 002e 1A60     		str	r2, [r3]
+ 376:../common/lpcusb/target/usbhw_lpc.c **** 
+ 377:../common/lpcusb/target/usbhw_lpc.c ****     // select endpoint and validate buffer
+ 378:../common/lpcusb/target/usbhw_lpc.c ****     USBHwCmd(CMD_EP_SELECT | idx);
+ 646              		.loc 1 378 5 is_stmt 1 view .LVU164
+ 647 0030 FFF7FEFF 		bl	USBHwCmd
+ 648              	.LVL45:
+ 379:../common/lpcusb/target/usbhw_lpc.c ****     USBHwCmd(CMD_EP_VALIDATE_BUFFER);
+ 649              		.loc 1 379 5 view .LVU165
+ 650 0034 FA20     		movs	r0, #250
+ 651 0036 FFF7FEFF 		bl	USBHwCmd
+ 652              	.LVL46:
+ 380:../common/lpcusb/target/usbhw_lpc.c ****     
+ 381:../common/lpcusb/target/usbhw_lpc.c ****     return iLen;
+ 653              		.loc 1 381 5 view .LVU166
+ 382:../common/lpcusb/target/usbhw_lpc.c **** }
+ 654              		.loc 1 382 1 is_stmt 0 view .LVU167
+ 655 003a 2846     		mov	r0, r5
+ 656 003c 38BD     		pop	{r3, r4, r5, pc}
+ 657              	.LVL47:
+ 658              	.L33:
+ 371:../common/lpcusb/target/usbhw_lpc.c ****         pbBuf += 4;
+ 659              		.loc 1 371 9 is_stmt 1 view .LVU168
+ 660 003e 51F8042B 		ldr	r2, [r1], #4	@ unaligned
+ 661              	.LVL48:
+ 371:../common/lpcusb/target/usbhw_lpc.c ****         pbBuf += 4;
+ 662              		.loc 1 371 19 is_stmt 0 view .LVU169
+ 663 0042 2260     		str	r2, [r4]
+ 372:../common/lpcusb/target/usbhw_lpc.c ****     }
+ 664              		.loc 1 372 9 is_stmt 1 view .LVU170
+ 665              	.LVL49:
+ 372:../common/lpcusb/target/usbhw_lpc.c ****     }
+ 666              		.loc 1 372 9 is_stmt 0 view .LVU171
+ 667 0044 EFE7     		b	.L32
+ 668              	.L35:
+ 669 0046 00BF     		.align	2
+ 670              	.L34:
+ 671 0048 28C20050 		.word	1342226984
+ 672 004c 24C20050 		.word	1342226980
+ 673              		.cfi_endproc
+ 674              	.LFE15:
+ 676              		.section	.text.USBHwEPRead,"ax",%progbits
+ 677              		.align	1
+ 678              		.global	USBHwEPRead
+ARM GAS  /tmp/ccJtVQ71.s 			page 20
+
+
+ 679              		.syntax unified
+ 680              		.thumb
+ 681              		.thumb_func
+ 682              		.fpu softvfp
+ 684              	USBHwEPRead:
+ 685              	.LVL50:
+ 686              	.LFB16:
+ 383:../common/lpcusb/target/usbhw_lpc.c **** 
+ 384:../common/lpcusb/target/usbhw_lpc.c **** 
+ 385:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 386:../common/lpcusb/target/usbhw_lpc.c ****     Reads data from an endpoint buffer
+ 387:../common/lpcusb/target/usbhw_lpc.c ****         
+ 388:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] bEP     Endpoint number
+ 389:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] pbBuf   Endpoint data
+ 390:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] iMaxLen Maximum number of bytes to read
+ 391:../common/lpcusb/target/usbhw_lpc.c ****             
+ 392:../common/lpcusb/target/usbhw_lpc.c ****     @return the number of bytes available in the EP (possibly more than iMaxLen),
+ 393:../common/lpcusb/target/usbhw_lpc.c ****     or <0 in case of error.
+ 394:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 395:../common/lpcusb/target/usbhw_lpc.c **** int USBHwEPRead(U8 bEP, U8 *pbBuf, U32 iMaxLen)
+ 396:../common/lpcusb/target/usbhw_lpc.c **** {
+ 687              		.loc 1 396 1 is_stmt 1 view -0
+ 688              		.cfi_startproc
+ 689              		@ args = 0, pretend = 0, frame = 0
+ 690              		@ frame_needed = 0, uses_anonymous_args = 0
+ 691              		.loc 1 396 1 is_stmt 0 view .LVU173
+ 692 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 693              		.cfi_def_cfa_offset 24
+ 694              		.cfi_offset 3, -24
+ 695              		.cfi_offset 4, -20
+ 696              		.cfi_offset 5, -16
+ 697              		.cfi_offset 6, -12
+ 698              		.cfi_offset 7, -8
+ 699              		.cfi_offset 14, -4
+ 397:../common/lpcusb/target/usbhw_lpc.c ****     U32 i, idx;
+ 700              		.loc 1 397 5 is_stmt 1 view .LVU174
+ 398:../common/lpcusb/target/usbhw_lpc.c ****     U32 dwData, dwLen;
+ 701              		.loc 1 398 5 view .LVU175
+ 399:../common/lpcusb/target/usbhw_lpc.c ****     
+ 400:../common/lpcusb/target/usbhw_lpc.c ****     idx = EP2IDX(bEP);
+ 702              		.loc 1 400 5 view .LVU176
+ 396:../common/lpcusb/target/usbhw_lpc.c ****     U32 i, idx;
+ 703              		.loc 1 396 1 is_stmt 0 view .LVU177
+ 704 0002 0346     		mov	r3, r0
+ 705              		.loc 1 400 11 view .LVU178
+ 706 0004 4000     		lsls	r0, r0, #1
+ 707              	.LVL51:
+ 708              		.loc 1 400 11 view .LVU179
+ 709 0006 00F01E00 		and	r0, r0, #30
+ 710 000a 40EAD310 		orr	r0, r0, r3, lsr #7
+ 711              	.LVL52:
+ 401:../common/lpcusb/target/usbhw_lpc.c ****     
+ 402:../common/lpcusb/target/usbhw_lpc.c ****     // set read enable bit for specific endpoint
+ 403:../common/lpcusb/target/usbhw_lpc.c ****     USBCtrl = RD_EN | ((bEP & 0xF) << 2);
+ 712              		.loc 1 403 5 is_stmt 1 view .LVU180
+ 713              		.loc 1 403 36 is_stmt 0 view .LVU181
+ 714 000e 9B00     		lsls	r3, r3, #2
+ARM GAS  /tmp/ccJtVQ71.s 			page 21
+
+
+ 715              		.loc 1 403 13 view .LVU182
+ 716 0010 144E     		ldr	r6, .L49
+ 717              		.loc 1 403 36 view .LVU183
+ 718 0012 03F03C03 		and	r3, r3, #60
+ 719              		.loc 1 403 21 view .LVU184
+ 720 0016 43F00103 		orr	r3, r3, #1
+ 404:../common/lpcusb/target/usbhw_lpc.c ****     
+ 405:../common/lpcusb/target/usbhw_lpc.c ****     // wait for PKT_RDY
+ 406:../common/lpcusb/target/usbhw_lpc.c ****     do {
+ 407:../common/lpcusb/target/usbhw_lpc.c ****         dwLen = USBRxPLen;
+ 721              		.loc 1 407 15 view .LVU185
+ 722 001a 134C     		ldr	r4, .L49+4
+ 403:../common/lpcusb/target/usbhw_lpc.c ****     
+ 723              		.loc 1 403 13 view .LVU186
+ 724 001c 3360     		str	r3, [r6]
+ 725              	.L37:
+ 406:../common/lpcusb/target/usbhw_lpc.c ****         dwLen = USBRxPLen;
+ 726              		.loc 1 406 5 is_stmt 1 discriminator 1 view .LVU187
+ 727              		.loc 1 407 9 discriminator 1 view .LVU188
+ 728              		.loc 1 407 15 is_stmt 0 discriminator 1 view .LVU189
+ 729 001e 2368     		ldr	r3, [r4]
+ 730              	.LVL53:
+ 408:../common/lpcusb/target/usbhw_lpc.c ****     } while ((dwLen & PKT_RDY) == 0);
+ 731              		.loc 1 408 13 is_stmt 1 discriminator 1 view .LVU190
+ 732              		.loc 1 408 5 is_stmt 0 discriminator 1 view .LVU191
+ 733 0020 1D05     		lsls	r5, r3, #20
+ 734 0022 FCD5     		bpl	.L37
+ 409:../common/lpcusb/target/usbhw_lpc.c ****     
+ 410:../common/lpcusb/target/usbhw_lpc.c ****     // packet valid?
+ 411:../common/lpcusb/target/usbhw_lpc.c ****     if ((dwLen & DV) == 0) {
+ 735              		.loc 1 411 5 is_stmt 1 view .LVU192
+ 736              		.loc 1 411 8 is_stmt 0 view .LVU193
+ 737 0024 5C05     		lsls	r4, r3, #21
+ 738 0026 1AD5     		bpl	.L43
+ 412:../common/lpcusb/target/usbhw_lpc.c ****         return -1;
+ 413:../common/lpcusb/target/usbhw_lpc.c ****     }
+ 414:../common/lpcusb/target/usbhw_lpc.c ****     
+ 415:../common/lpcusb/target/usbhw_lpc.c ****     // get length
+ 416:../common/lpcusb/target/usbhw_lpc.c ****     dwLen &= PKT_LNGTH_MASK;
+ 739              		.loc 1 416 5 is_stmt 1 view .LVU194
+ 417:../common/lpcusb/target/usbhw_lpc.c ****     
+ 418:../common/lpcusb/target/usbhw_lpc.c ****     // get data
+ 419:../common/lpcusb/target/usbhw_lpc.c ****     dwData = 0;
+ 740              		.loc 1 419 12 is_stmt 0 view .LVU195
+ 741 0028 0025     		movs	r5, #0
+ 420:../common/lpcusb/target/usbhw_lpc.c ****     for (i = 0; i < dwLen; i++) {
+ 742              		.loc 1 420 12 view .LVU196
+ 743 002a 2C46     		mov	r4, r5
+ 421:../common/lpcusb/target/usbhw_lpc.c ****         if ((i % 4) == 0) {
+ 422:../common/lpcusb/target/usbhw_lpc.c ****             dwData = USBRxData;
+ 744              		.loc 1 422 20 view .LVU197
+ 745 002c 0F4F     		ldr	r7, .L49+8
+ 416:../common/lpcusb/target/usbhw_lpc.c ****     
+ 746              		.loc 1 416 11 view .LVU198
+ 747 002e C3F30903 		ubfx	r3, r3, #0, #10
+ 748              	.LVL54:
+ 419:../common/lpcusb/target/usbhw_lpc.c ****     for (i = 0; i < dwLen; i++) {
+ARM GAS  /tmp/ccJtVQ71.s 			page 22
+
+
+ 749              		.loc 1 419 5 is_stmt 1 view .LVU199
+ 420:../common/lpcusb/target/usbhw_lpc.c ****         if ((i % 4) == 0) {
+ 750              		.loc 1 420 5 view .LVU200
+ 751              	.L39:
+ 420:../common/lpcusb/target/usbhw_lpc.c ****         if ((i % 4) == 0) {
+ 752              		.loc 1 420 17 discriminator 1 view .LVU201
+ 420:../common/lpcusb/target/usbhw_lpc.c ****         if ((i % 4) == 0) {
+ 753              		.loc 1 420 5 is_stmt 0 discriminator 1 view .LVU202
+ 754 0032 9C42     		cmp	r4, r3
+ 755 0034 08D1     		bne	.L42
+ 423:../common/lpcusb/target/usbhw_lpc.c ****         }
+ 424:../common/lpcusb/target/usbhw_lpc.c ****         if ((pbBuf != NULL) && (i < iMaxLen)) {
+ 425:../common/lpcusb/target/usbhw_lpc.c ****             pbBuf[i] = dwData & 0xFF;
+ 426:../common/lpcusb/target/usbhw_lpc.c ****         }
+ 427:../common/lpcusb/target/usbhw_lpc.c ****         dwData >>= 8;
+ 428:../common/lpcusb/target/usbhw_lpc.c ****     }
+ 429:../common/lpcusb/target/usbhw_lpc.c **** 
+ 430:../common/lpcusb/target/usbhw_lpc.c ****     // make sure RD_EN is clear
+ 431:../common/lpcusb/target/usbhw_lpc.c ****     USBCtrl = 0;
+ 756              		.loc 1 431 5 is_stmt 1 view .LVU203
+ 757              		.loc 1 431 13 is_stmt 0 view .LVU204
+ 758 0036 0023     		movs	r3, #0
+ 759              	.LVL55:
+ 760              		.loc 1 431 13 view .LVU205
+ 761 0038 3360     		str	r3, [r6]
+ 432:../common/lpcusb/target/usbhw_lpc.c **** 
+ 433:../common/lpcusb/target/usbhw_lpc.c ****     // select endpoint and clear buffer
+ 434:../common/lpcusb/target/usbhw_lpc.c ****     USBHwCmd(CMD_EP_SELECT | idx);
+ 762              		.loc 1 434 5 is_stmt 1 view .LVU206
+ 763 003a FFF7FEFF 		bl	USBHwCmd
+ 764              	.LVL56:
+ 435:../common/lpcusb/target/usbhw_lpc.c ****     USBHwCmd(CMD_EP_CLEAR_BUFFER);
+ 765              		.loc 1 435 5 view .LVU207
+ 766 003e F220     		movs	r0, #242
+ 767 0040 FFF7FEFF 		bl	USBHwCmd
+ 768              	.LVL57:
+ 436:../common/lpcusb/target/usbhw_lpc.c ****     
+ 437:../common/lpcusb/target/usbhw_lpc.c ****     return dwLen;
+ 769              		.loc 1 437 5 view .LVU208
+ 770              		.loc 1 437 12 is_stmt 0 view .LVU209
+ 771 0044 2046     		mov	r0, r4
+ 772              	.LVL58:
+ 773              	.L36:
+ 438:../common/lpcusb/target/usbhw_lpc.c **** }
+ 774              		.loc 1 438 1 view .LVU210
+ 775 0046 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 776              	.LVL59:
+ 777              	.L42:
+ 421:../common/lpcusb/target/usbhw_lpc.c ****             dwData = USBRxData;
+ 778              		.loc 1 421 9 is_stmt 1 view .LVU211
+ 421:../common/lpcusb/target/usbhw_lpc.c ****             dwData = USBRxData;
+ 779              		.loc 1 421 12 is_stmt 0 view .LVU212
+ 780 0048 14F0030F 		tst	r4, #3
+ 422:../common/lpcusb/target/usbhw_lpc.c ****         }
+ 781              		.loc 1 422 13 is_stmt 1 view .LVU213
+ 422:../common/lpcusb/target/usbhw_lpc.c ****         }
+ 782              		.loc 1 422 20 is_stmt 0 view .LVU214
+ARM GAS  /tmp/ccJtVQ71.s 			page 23
+
+
+ 783 004c 08BF     		it	eq
+ 784 004e 3D68     		ldreq	r5, [r7]
+ 785              	.LVL60:
+ 424:../common/lpcusb/target/usbhw_lpc.c ****             pbBuf[i] = dwData & 0xFF;
+ 786              		.loc 1 424 9 is_stmt 1 view .LVU215
+ 424:../common/lpcusb/target/usbhw_lpc.c ****             pbBuf[i] = dwData & 0xFF;
+ 787              		.loc 1 424 12 is_stmt 0 view .LVU216
+ 788 0050 11B1     		cbz	r1, .L41
+ 424:../common/lpcusb/target/usbhw_lpc.c ****             pbBuf[i] = dwData & 0xFF;
+ 789              		.loc 1 424 29 discriminator 1 view .LVU217
+ 790 0052 9442     		cmp	r4, r2
+ 425:../common/lpcusb/target/usbhw_lpc.c ****         }
+ 791              		.loc 1 425 13 is_stmt 1 discriminator 1 view .LVU218
+ 425:../common/lpcusb/target/usbhw_lpc.c ****         }
+ 792              		.loc 1 425 22 is_stmt 0 discriminator 1 view .LVU219
+ 793 0054 38BF     		it	cc
+ 794 0056 0D55     		strbcc	r5, [r1, r4]
+ 795              	.L41:
+ 427:../common/lpcusb/target/usbhw_lpc.c ****     }
+ 796              		.loc 1 427 9 is_stmt 1 discriminator 2 view .LVU220
+ 427:../common/lpcusb/target/usbhw_lpc.c ****     }
+ 797              		.loc 1 427 16 is_stmt 0 discriminator 2 view .LVU221
+ 798 0058 2D0A     		lsrs	r5, r5, #8
+ 799              	.LVL61:
+ 420:../common/lpcusb/target/usbhw_lpc.c ****         if ((i % 4) == 0) {
+ 800              		.loc 1 420 28 is_stmt 1 discriminator 2 view .LVU222
+ 420:../common/lpcusb/target/usbhw_lpc.c ****         if ((i % 4) == 0) {
+ 801              		.loc 1 420 29 is_stmt 0 discriminator 2 view .LVU223
+ 802 005a 0134     		adds	r4, r4, #1
+ 803              	.LVL62:
+ 420:../common/lpcusb/target/usbhw_lpc.c ****         if ((i % 4) == 0) {
+ 804              		.loc 1 420 29 discriminator 2 view .LVU224
+ 805 005c E9E7     		b	.L39
+ 806              	.LVL63:
+ 807              	.L43:
+ 412:../common/lpcusb/target/usbhw_lpc.c ****     }
+ 808              		.loc 1 412 16 view .LVU225
+ 809 005e 4FF0FF30 		mov	r0, #-1
+ 810              	.LVL64:
+ 412:../common/lpcusb/target/usbhw_lpc.c ****     }
+ 811              		.loc 1 412 16 view .LVU226
+ 812 0062 F0E7     		b	.L36
+ 813              	.L50:
+ 814              		.align	2
+ 815              	.L49:
+ 816 0064 28C20050 		.word	1342226984
+ 817 0068 20C20050 		.word	1342226976
+ 818 006c 18C20050 		.word	1342226968
+ 819              		.cfi_endproc
+ 820              	.LFE16:
+ 822              		.section	.text.USBHwISOCEPRead,"ax",%progbits
+ 823              		.align	1
+ 824              		.global	USBHwISOCEPRead
+ 825              		.syntax unified
+ 826              		.thumb
+ 827              		.thumb_func
+ 828              		.fpu softvfp
+ARM GAS  /tmp/ccJtVQ71.s 			page 24
+
+
+ 830              	USBHwISOCEPRead:
+ 831              	.LVL65:
+ 832              	.LFB18:
+ 439:../common/lpcusb/target/usbhw_lpc.c **** 
+ 440:../common/lpcusb/target/usbhw_lpc.c **** static void fast_wait() {
+ 441:../common/lpcusb/target/usbhw_lpc.c **** #ifdef __GNUC__
+ 442:../common/lpcusb/target/usbhw_lpc.c ****     asm volatile("nop\n"); 
+ 443:../common/lpcusb/target/usbhw_lpc.c **** #endif
+ 444:../common/lpcusb/target/usbhw_lpc.c **** 
+ 445:../common/lpcusb/target/usbhw_lpc.c **** #ifdef __arm__
+ 446:../common/lpcusb/target/usbhw_lpc.c ****     volatile uint32_t fast_wait = 1;
+ 447:../common/lpcusb/target/usbhw_lpc.c ****     while(--fast_wait);
+ 448:../common/lpcusb/target/usbhw_lpc.c **** #endif
+ 449:../common/lpcusb/target/usbhw_lpc.c **** }
+ 450:../common/lpcusb/target/usbhw_lpc.c **** 
+ 451:../common/lpcusb/target/usbhw_lpc.c **** 
+ 452:../common/lpcusb/target/usbhw_lpc.c **** int USBHwISOCEPRead(const U8 bEP, U8 *pbBuf, const U32 iMaxLen)
+ 453:../common/lpcusb/target/usbhw_lpc.c **** {
+ 833              		.loc 1 453 1 is_stmt 1 view -0
+ 834              		.cfi_startproc
+ 835              		@ args = 0, pretend = 0, frame = 8
+ 836              		@ frame_needed = 0, uses_anonymous_args = 0
+ 837              		.loc 1 453 1 is_stmt 0 view .LVU228
+ 838 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 839              		.cfi_def_cfa_offset 32
+ 840              		.cfi_offset 4, -20
+ 841              		.cfi_offset 5, -16
+ 842              		.cfi_offset 6, -12
+ 843              		.cfi_offset 7, -8
+ 844              		.cfi_offset 14, -4
+ 454:../common/lpcusb/target/usbhw_lpc.c ****     U32 i, idx;
+ 845              		.loc 1 454 5 is_stmt 1 view .LVU229
+ 455:../common/lpcusb/target/usbhw_lpc.c ****     U32 dwData, dwLen;
+ 846              		.loc 1 455 5 view .LVU230
+ 456:../common/lpcusb/target/usbhw_lpc.c **** 
+ 457:../common/lpcusb/target/usbhw_lpc.c ****     idx = EP2IDX(bEP);
+ 847              		.loc 1 457 5 view .LVU231
+ 453:../common/lpcusb/target/usbhw_lpc.c ****     U32 i, idx;
+ 848              		.loc 1 453 1 is_stmt 0 view .LVU232
+ 849 0002 0346     		mov	r3, r0
+ 850              		.loc 1 457 11 view .LVU233
+ 851 0004 4000     		lsls	r0, r0, #1
+ 852              	.LVL66:
+ 853              		.loc 1 457 11 view .LVU234
+ 854 0006 00F01E00 		and	r0, r0, #30
+ 855 000a 40EAD310 		orr	r0, r0, r3, lsr #7
+ 856              	.LVL67:
+ 458:../common/lpcusb/target/usbhw_lpc.c **** 
+ 459:../common/lpcusb/target/usbhw_lpc.c ****     // set read enable bit for specific endpoint
+ 460:../common/lpcusb/target/usbhw_lpc.c ****     USBCtrl = RD_EN | ((bEP & 0xF) << 2);
+ 857              		.loc 1 460 5 is_stmt 1 view .LVU235
+ 858              		.loc 1 460 36 is_stmt 0 view .LVU236
+ 859 000e 9B00     		lsls	r3, r3, #2
+ 860              		.loc 1 460 13 view .LVU237
+ 861 0010 1A4E     		ldr	r6, .L65
+ 862              		.loc 1 460 36 view .LVU238
+ 863 0012 03F03C03 		and	r3, r3, #60
+ARM GAS  /tmp/ccJtVQ71.s 			page 25
+
+
+ 864              		.loc 1 460 21 view .LVU239
+ 865 0016 43F00103 		orr	r3, r3, #1
+ 866              		.loc 1 460 13 view .LVU240
+ 867 001a 3360     		str	r3, [r6]
+ 461:../common/lpcusb/target/usbhw_lpc.c ****     
+ 462:../common/lpcusb/target/usbhw_lpc.c ****     //Note: for some reason the USB perepherial needs a cycle to set bits in USBRxPLen before 
+ 463:../common/lpcusb/target/usbhw_lpc.c ****     //reading, if you remove this ISOC wont work. This may be a but in the chip, or due to 
+ 464:../common/lpcusb/target/usbhw_lpc.c ****     //a mis-understanding of how the perepherial is supposed to work.    
+ 465:../common/lpcusb/target/usbhw_lpc.c ****     fast_wait();
+ 868              		.loc 1 465 5 is_stmt 1 view .LVU241
+ 869              	.LBB20:
+ 870              	.LBI20:
+ 440:../common/lpcusb/target/usbhw_lpc.c **** #ifdef __GNUC__
+ 871              		.loc 1 440 13 view .LVU242
+ 872              	.LBB21:
+ 442:../common/lpcusb/target/usbhw_lpc.c **** #endif
+ 873              		.loc 1 442 5 view .LVU243
+ 874              		.syntax unified
+ 875              	@ 442 "../common/lpcusb/target/usbhw_lpc.c" 1
+ 876 001c 00BF     		nop
+ 877              	
+ 878              	@ 0 "" 2
+ 446:../common/lpcusb/target/usbhw_lpc.c ****     while(--fast_wait);
+ 879              		.loc 1 446 5 view .LVU244
+ 446:../common/lpcusb/target/usbhw_lpc.c ****     while(--fast_wait);
+ 880              		.loc 1 446 23 is_stmt 0 view .LVU245
+ 881              		.thumb
+ 882              		.syntax unified
+ 883 001e 0123     		movs	r3, #1
+ 884 0020 0193     		str	r3, [sp, #4]
+ 447:../common/lpcusb/target/usbhw_lpc.c **** #endif
+ 885              		.loc 1 447 5 is_stmt 1 view .LVU246
+ 886              	.L52:
+ 447:../common/lpcusb/target/usbhw_lpc.c **** #endif
+ 887              		.loc 1 447 23 view .LVU247
+ 447:../common/lpcusb/target/usbhw_lpc.c **** #endif
+ 888              		.loc 1 447 10 view .LVU248
+ 447:../common/lpcusb/target/usbhw_lpc.c **** #endif
+ 889              		.loc 1 447 11 is_stmt 0 view .LVU249
+ 890 0022 019B     		ldr	r3, [sp, #4]
+ 891 0024 013B     		subs	r3, r3, #1
+ 447:../common/lpcusb/target/usbhw_lpc.c **** #endif
+ 892              		.loc 1 447 10 view .LVU250
+ 893 0026 0193     		str	r3, [sp, #4]
+ 894 0028 002B     		cmp	r3, #0
+ 895 002a FAD1     		bne	.L52
+ 896              	.LBE21:
+ 897              	.LBE20:
+ 466:../common/lpcusb/target/usbhw_lpc.c ****     
+ 467:../common/lpcusb/target/usbhw_lpc.c ****     dwLen = USBRxPLen;
+ 898              		.loc 1 467 5 is_stmt 1 view .LVU251
+ 899              		.loc 1 467 11 is_stmt 0 view .LVU252
+ 900 002c 144C     		ldr	r4, .L65+4
+ 901 002e 2468     		ldr	r4, [r4]
+ 902              	.LVL68:
+ 468:../common/lpcusb/target/usbhw_lpc.c ****     if( (dwLen & PKT_RDY) == 0 ) {
+ 903              		.loc 1 468 5 is_stmt 1 view .LVU253
+ARM GAS  /tmp/ccJtVQ71.s 			page 26
+
+
+ 904              		.loc 1 468 7 is_stmt 0 view .LVU254
+ 905 0030 14F40065 		ands	r5, r4, #2048
+ 906 0034 04D1     		bne	.L53
+ 907              	.L64:
+ 469:../common/lpcusb/target/usbhw_lpc.c ****         USBCtrl = 0;// make sure RD_EN is clear
+ 470:../common/lpcusb/target/usbhw_lpc.c ****         return(-1);
+ 471:../common/lpcusb/target/usbhw_lpc.c ****     }
+ 472:../common/lpcusb/target/usbhw_lpc.c **** 
+ 473:../common/lpcusb/target/usbhw_lpc.c ****     // packet valid?
+ 474:../common/lpcusb/target/usbhw_lpc.c ****     if ((dwLen & DV) == 0) {
+ 475:../common/lpcusb/target/usbhw_lpc.c ****         USBCtrl = 0;// make sure RD_EN is clear
+ 908              		.loc 1 475 9 is_stmt 1 view .LVU255
+ 476:../common/lpcusb/target/usbhw_lpc.c ****         return -1;
+ 909              		.loc 1 476 16 is_stmt 0 view .LVU256
+ 910 0036 4FF0FF30 		mov	r0, #-1
+ 911              	.LVL69:
+ 475:../common/lpcusb/target/usbhw_lpc.c ****         return -1;
+ 912              		.loc 1 475 17 view .LVU257
+ 913 003a 3560     		str	r5, [r6]
+ 914              		.loc 1 476 9 is_stmt 1 view .LVU258
+ 915              	.LVL70:
+ 916              	.L51:
+ 477:../common/lpcusb/target/usbhw_lpc.c ****     }
+ 478:../common/lpcusb/target/usbhw_lpc.c **** 
+ 479:../common/lpcusb/target/usbhw_lpc.c ****     // get length
+ 480:../common/lpcusb/target/usbhw_lpc.c ****     dwLen &= PKT_LNGTH_MASK;
+ 481:../common/lpcusb/target/usbhw_lpc.c **** 
+ 482:../common/lpcusb/target/usbhw_lpc.c ****     // get data
+ 483:../common/lpcusb/target/usbhw_lpc.c ****     dwData = 0;
+ 484:../common/lpcusb/target/usbhw_lpc.c ****     for (i = 0; i < dwLen; i++) {
+ 485:../common/lpcusb/target/usbhw_lpc.c ****         if ((i % 4) == 0) {
+ 486:../common/lpcusb/target/usbhw_lpc.c ****             dwData = USBRxData;
+ 487:../common/lpcusb/target/usbhw_lpc.c ****         }
+ 488:../common/lpcusb/target/usbhw_lpc.c ****         if ((pbBuf != NULL) && (i < iMaxLen)) {
+ 489:../common/lpcusb/target/usbhw_lpc.c ****             pbBuf[i] = dwData & 0xFF;
+ 490:../common/lpcusb/target/usbhw_lpc.c ****         }
+ 491:../common/lpcusb/target/usbhw_lpc.c ****         dwData >>= 8;
+ 492:../common/lpcusb/target/usbhw_lpc.c ****     }
+ 493:../common/lpcusb/target/usbhw_lpc.c **** 
+ 494:../common/lpcusb/target/usbhw_lpc.c ****     // make sure RD_EN is clear
+ 495:../common/lpcusb/target/usbhw_lpc.c ****     USBCtrl = 0;
+ 496:../common/lpcusb/target/usbhw_lpc.c **** 
+ 497:../common/lpcusb/target/usbhw_lpc.c ****     // select endpoint and clear buffer
+ 498:../common/lpcusb/target/usbhw_lpc.c ****     USBHwCmd(CMD_EP_SELECT | idx);
+ 499:../common/lpcusb/target/usbhw_lpc.c ****     USBHwCmd(CMD_EP_CLEAR_BUFFER);
+ 500:../common/lpcusb/target/usbhw_lpc.c **** 
+ 501:../common/lpcusb/target/usbhw_lpc.c ****     return dwLen;
+ 502:../common/lpcusb/target/usbhw_lpc.c **** }
+ 917              		.loc 1 502 1 is_stmt 0 view .LVU259
+ 918 003c 03B0     		add	sp, sp, #12
+ 919              		.cfi_remember_state
+ 920              		.cfi_def_cfa_offset 20
+ 921              		@ sp needed
+ 922 003e F0BD     		pop	{r4, r5, r6, r7, pc}
+ 923              	.LVL71:
+ 924              	.L53:
+ 925              		.cfi_restore_state
+ARM GAS  /tmp/ccJtVQ71.s 			page 27
+
+
+ 474:../common/lpcusb/target/usbhw_lpc.c ****         USBCtrl = 0;// make sure RD_EN is clear
+ 926              		.loc 1 474 5 is_stmt 1 view .LVU260
+ 474:../common/lpcusb/target/usbhw_lpc.c ****         USBCtrl = 0;// make sure RD_EN is clear
+ 927              		.loc 1 474 8 is_stmt 0 view .LVU261
+ 928 0040 14F48065 		ands	r5, r4, #1024
+ 929 0044 F7D0     		beq	.L64
+ 480:../common/lpcusb/target/usbhw_lpc.c **** 
+ 930              		.loc 1 480 5 is_stmt 1 view .LVU262
+ 480:../common/lpcusb/target/usbhw_lpc.c **** 
+ 931              		.loc 1 480 11 is_stmt 0 view .LVU263
+ 932 0046 C4F30905 		ubfx	r5, r4, #0, #10
+ 933              	.LVL72:
+ 483:../common/lpcusb/target/usbhw_lpc.c ****     for (i = 0; i < dwLen; i++) {
+ 934              		.loc 1 483 5 is_stmt 1 view .LVU264
+ 484:../common/lpcusb/target/usbhw_lpc.c ****         if ((i % 4) == 0) {
+ 935              		.loc 1 484 5 view .LVU265
+ 484:../common/lpcusb/target/usbhw_lpc.c ****         if ((i % 4) == 0) {
+ 936              		.loc 1 484 12 is_stmt 0 view .LVU266
+ 937 004a 1C46     		mov	r4, r3
+ 486:../common/lpcusb/target/usbhw_lpc.c ****         }
+ 938              		.loc 1 486 20 view .LVU267
+ 939 004c 0D4F     		ldr	r7, .L65+8
+ 940              	.LVL73:
+ 941              	.L56:
+ 484:../common/lpcusb/target/usbhw_lpc.c ****         if ((i % 4) == 0) {
+ 942              		.loc 1 484 17 is_stmt 1 discriminator 1 view .LVU268
+ 484:../common/lpcusb/target/usbhw_lpc.c ****         if ((i % 4) == 0) {
+ 943              		.loc 1 484 5 is_stmt 0 discriminator 1 view .LVU269
+ 944 004e AC42     		cmp	r4, r5
+ 945 0050 08D1     		bne	.L59
+ 495:../common/lpcusb/target/usbhw_lpc.c **** 
+ 946              		.loc 1 495 5 is_stmt 1 view .LVU270
+ 495:../common/lpcusb/target/usbhw_lpc.c **** 
+ 947              		.loc 1 495 13 is_stmt 0 view .LVU271
+ 948 0052 0023     		movs	r3, #0
+ 949              	.LVL74:
+ 495:../common/lpcusb/target/usbhw_lpc.c **** 
+ 950              		.loc 1 495 13 view .LVU272
+ 951 0054 3360     		str	r3, [r6]
+ 498:../common/lpcusb/target/usbhw_lpc.c ****     USBHwCmd(CMD_EP_CLEAR_BUFFER);
+ 952              		.loc 1 498 5 is_stmt 1 view .LVU273
+ 953 0056 FFF7FEFF 		bl	USBHwCmd
+ 954              	.LVL75:
+ 499:../common/lpcusb/target/usbhw_lpc.c **** 
+ 955              		.loc 1 499 5 view .LVU274
+ 956 005a F220     		movs	r0, #242
+ 957 005c FFF7FEFF 		bl	USBHwCmd
+ 958              	.LVL76:
+ 501:../common/lpcusb/target/usbhw_lpc.c **** }
+ 959              		.loc 1 501 5 view .LVU275
+ 501:../common/lpcusb/target/usbhw_lpc.c **** }
+ 960              		.loc 1 501 12 is_stmt 0 view .LVU276
+ 961 0060 2046     		mov	r0, r4
+ 962 0062 EBE7     		b	.L51
+ 963              	.LVL77:
+ 964              	.L59:
+ 485:../common/lpcusb/target/usbhw_lpc.c ****             dwData = USBRxData;
+ARM GAS  /tmp/ccJtVQ71.s 			page 28
+
+
+ 965              		.loc 1 485 9 is_stmt 1 view .LVU277
+ 485:../common/lpcusb/target/usbhw_lpc.c ****             dwData = USBRxData;
+ 966              		.loc 1 485 12 is_stmt 0 view .LVU278
+ 967 0064 14F0030F 		tst	r4, #3
+ 486:../common/lpcusb/target/usbhw_lpc.c ****         }
+ 968              		.loc 1 486 13 is_stmt 1 view .LVU279
+ 486:../common/lpcusb/target/usbhw_lpc.c ****         }
+ 969              		.loc 1 486 20 is_stmt 0 view .LVU280
+ 970 0068 08BF     		it	eq
+ 971 006a 3B68     		ldreq	r3, [r7]
+ 972              	.LVL78:
+ 488:../common/lpcusb/target/usbhw_lpc.c ****             pbBuf[i] = dwData & 0xFF;
+ 973              		.loc 1 488 9 is_stmt 1 view .LVU281
+ 488:../common/lpcusb/target/usbhw_lpc.c ****             pbBuf[i] = dwData & 0xFF;
+ 974              		.loc 1 488 12 is_stmt 0 view .LVU282
+ 975 006c 11B1     		cbz	r1, .L58
+ 488:../common/lpcusb/target/usbhw_lpc.c ****             pbBuf[i] = dwData & 0xFF;
+ 976              		.loc 1 488 29 discriminator 1 view .LVU283
+ 977 006e 9442     		cmp	r4, r2
+ 489:../common/lpcusb/target/usbhw_lpc.c ****         }
+ 978              		.loc 1 489 13 is_stmt 1 discriminator 1 view .LVU284
+ 489:../common/lpcusb/target/usbhw_lpc.c ****         }
+ 979              		.loc 1 489 22 is_stmt 0 discriminator 1 view .LVU285
+ 980 0070 38BF     		it	cc
+ 981 0072 0B55     		strbcc	r3, [r1, r4]
+ 982              	.L58:
+ 491:../common/lpcusb/target/usbhw_lpc.c ****     }
+ 983              		.loc 1 491 9 is_stmt 1 discriminator 2 view .LVU286
+ 491:../common/lpcusb/target/usbhw_lpc.c ****     }
+ 984              		.loc 1 491 16 is_stmt 0 discriminator 2 view .LVU287
+ 985 0074 1B0A     		lsrs	r3, r3, #8
+ 986              	.LVL79:
+ 484:../common/lpcusb/target/usbhw_lpc.c ****         if ((i % 4) == 0) {
+ 987              		.loc 1 484 28 is_stmt 1 discriminator 2 view .LVU288
+ 484:../common/lpcusb/target/usbhw_lpc.c ****         if ((i % 4) == 0) {
+ 988              		.loc 1 484 29 is_stmt 0 discriminator 2 view .LVU289
+ 989 0076 0134     		adds	r4, r4, #1
+ 990              	.LVL80:
+ 484:../common/lpcusb/target/usbhw_lpc.c ****         if ((i % 4) == 0) {
+ 991              		.loc 1 484 29 discriminator 2 view .LVU290
+ 992 0078 E9E7     		b	.L56
+ 993              	.L66:
+ 994 007a 00BF     		.align	2
+ 995              	.L65:
+ 996 007c 28C20050 		.word	1342226984
+ 997 0080 20C20050 		.word	1342226976
+ 998 0084 18C20050 		.word	1342226968
+ 999              		.cfi_endproc
+ 1000              	.LFE18:
+ 1002              		.section	.text.USBHwConfigDevice,"ax",%progbits
+ 1003              		.align	1
+ 1004              		.global	USBHwConfigDevice
+ 1005              		.syntax unified
+ 1006              		.thumb
+ 1007              		.thumb_func
+ 1008              		.fpu softvfp
+ 1010              	USBHwConfigDevice:
+ARM GAS  /tmp/ccJtVQ71.s 			page 29
+
+
+ 1011              	.LVL81:
+ 1012              	.LFB19:
+ 503:../common/lpcusb/target/usbhw_lpc.c **** 
+ 504:../common/lpcusb/target/usbhw_lpc.c **** 
+ 505:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 506:../common/lpcusb/target/usbhw_lpc.c ****     Sets the 'configured' state.
+ 507:../common/lpcusb/target/usbhw_lpc.c ****         
+ 508:../common/lpcusb/target/usbhw_lpc.c ****     All registered endpoints are 'realised' and enabled, and the
+ 509:../common/lpcusb/target/usbhw_lpc.c ****     'configured' bit is set in the device status register.
+ 510:../common/lpcusb/target/usbhw_lpc.c ****         
+ 511:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] fConfigured If TRUE, configure device, else unconfigure
+ 512:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 513:../common/lpcusb/target/usbhw_lpc.c **** void USBHwConfigDevice(BOOL fConfigured)
+ 514:../common/lpcusb/target/usbhw_lpc.c **** {
+ 1013              		.loc 1 514 1 is_stmt 1 view -0
+ 1014              		.cfi_startproc
+ 1015              		@ args = 0, pretend = 0, frame = 0
+ 1016              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1017              		@ link register save eliminated.
+ 1018              		.loc 1 514 1 is_stmt 0 view .LVU292
+ 515:../common/lpcusb/target/usbhw_lpc.c ****     // set configured bit
+ 516:../common/lpcusb/target/usbhw_lpc.c ****     USBHwCmdWrite(CMD_DEV_CONFIG, fConfigured ? CONF_DEVICE : 0);
+ 1019              		.loc 1 516 5 is_stmt 1 view .LVU293
+ 1020 0000 011E     		subs	r1, r0, #0
+ 1021 0002 18BF     		it	ne
+ 1022 0004 0121     		movne	r1, #1
+ 1023 0006 D820     		movs	r0, #216
+ 1024              	.LVL82:
+ 1025              		.loc 1 516 5 is_stmt 0 view .LVU294
+ 1026 0008 FFF7FEBF 		b	USBHwCmdWrite
+ 1027              	.LVL83:
+ 1028              		.cfi_endproc
+ 1029              	.LFE19:
+ 1031              		.section	.text.USBHwISR,"ax",%progbits
+ 1032              		.align	1
+ 1033              		.global	USBHwISR
+ 1034              		.syntax unified
+ 1035              		.thumb
+ 1036              		.thumb_func
+ 1037              		.fpu softvfp
+ 1039              	USBHwISR:
+ 1040              	.LFB20:
+ 517:../common/lpcusb/target/usbhw_lpc.c **** }
+ 518:../common/lpcusb/target/usbhw_lpc.c **** 
+ 519:../common/lpcusb/target/usbhw_lpc.c **** 
+ 520:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 521:../common/lpcusb/target/usbhw_lpc.c ****     USB interrupt handler
+ 522:../common/lpcusb/target/usbhw_lpc.c ****         
+ 523:../common/lpcusb/target/usbhw_lpc.c ****     @todo Get all 11 bits of frame number instead of just 8
+ 524:../common/lpcusb/target/usbhw_lpc.c **** 
+ 525:../common/lpcusb/target/usbhw_lpc.c ****     Endpoint interrupts are mapped to the slow interrupt
+ 526:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 527:../common/lpcusb/target/usbhw_lpc.c **** void USBHwISR(void)
+ 528:../common/lpcusb/target/usbhw_lpc.c **** {
+ 1041              		.loc 1 528 1 is_stmt 1 view -0
+ 1042              		.cfi_startproc
+ 1043              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  /tmp/ccJtVQ71.s 			page 30
+
+
+ 1044              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1045 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 1046              		.cfi_def_cfa_offset 24
+ 1047              		.cfi_offset 3, -24
+ 1048              		.cfi_offset 4, -20
+ 1049              		.cfi_offset 5, -16
+ 1050              		.cfi_offset 6, -12
+ 1051              		.cfi_offset 7, -8
+ 1052              		.cfi_offset 14, -4
+ 529:../common/lpcusb/target/usbhw_lpc.c ****     U32 dwStatus;
+ 1053              		.loc 1 529 5 view .LVU296
+ 530:../common/lpcusb/target/usbhw_lpc.c ****     U32 dwIntBit;
+ 1054              		.loc 1 530 5 view .LVU297
+ 531:../common/lpcusb/target/usbhw_lpc.c ****     U8  bEPStat, bDevStat, bStat;
+ 1055              		.loc 1 531 5 view .LVU298
+ 532:../common/lpcusb/target/usbhw_lpc.c ****     int i;
+ 1056              		.loc 1 532 5 view .LVU299
+ 533:../common/lpcusb/target/usbhw_lpc.c ****     U16 wFrame;
+ 1057              		.loc 1 533 5 view .LVU300
+ 534:../common/lpcusb/target/usbhw_lpc.c **** 
+ 535:../common/lpcusb/target/usbhw_lpc.c **** // LED9 monitors total time in interrupt routine
+ 536:../common/lpcusb/target/usbhw_lpc.c **** DEBUG_LED_ON(9);
+ 1058              		.loc 1 536 16 view .LVU301
+ 537:../common/lpcusb/target/usbhw_lpc.c **** 
+ 538:../common/lpcusb/target/usbhw_lpc.c ****     // handle device interrupts
+ 539:../common/lpcusb/target/usbhw_lpc.c ****     dwStatus = USBDevIntSt;
+ 1059              		.loc 1 539 5 view .LVU302
+ 1060              		.loc 1 539 14 is_stmt 0 view .LVU303
+ 1061 0002 294B     		ldr	r3, .L96
+ 1062 0004 1C68     		ldr	r4, [r3]
+ 1063              	.LVL84:
+ 540:../common/lpcusb/target/usbhw_lpc.c ****     
+ 541:../common/lpcusb/target/usbhw_lpc.c ****     // frame interrupt
+ 542:../common/lpcusb/target/usbhw_lpc.c ****     if (dwStatus & FRAME) {
+ 1064              		.loc 1 542 5 is_stmt 1 view .LVU304
+ 1065              		.loc 1 542 8 is_stmt 0 view .LVU305
+ 1066 0006 E107     		lsls	r1, r4, #31
+ 1067 0008 11D5     		bpl	.L70
+ 543:../common/lpcusb/target/usbhw_lpc.c ****         // clear int
+ 544:../common/lpcusb/target/usbhw_lpc.c ****         USBDevIntClr = FRAME;
+ 1068              		.loc 1 544 9 is_stmt 1 view .LVU306
+ 1069              		.loc 1 544 22 is_stmt 0 view .LVU307
+ 1070 000a 0122     		movs	r2, #1
+ 1071 000c 9A60     		str	r2, [r3, #8]
+ 545:../common/lpcusb/target/usbhw_lpc.c ****         // call handler
+ 546:../common/lpcusb/target/usbhw_lpc.c ****         if (_pfnFrameHandler != NULL) {
+ 1072              		.loc 1 546 9 is_stmt 1 view .LVU308
+ 1073              		.loc 1 546 30 is_stmt 0 view .LVU309
+ 1074 000e 274B     		ldr	r3, .L96+4
+ 1075 0010 596C     		ldr	r1, [r3, #68]
+ 1076              		.loc 1 546 12 view .LVU310
+ 1077 0012 61B1     		cbz	r1, .L70
+ 547:../common/lpcusb/target/usbhw_lpc.c ****             wFrame = USBHwCmdRead(CMD_DEV_READ_CUR_FRAME_NR);
+ 1078              		.loc 1 547 13 is_stmt 1 view .LVU311
+ 1079              	.LVL85:
+ 1080              	.LBB26:
+ 1081              	.LBI26:
+ARM GAS  /tmp/ccJtVQ71.s 			page 31
+
+
+ 141:../common/lpcusb/target/usbhw_lpc.c **** {
+ 1082              		.loc 1 141 11 view .LVU312
+ 1083              	.LBB27:
+ 144:../common/lpcusb/target/usbhw_lpc.c ****     
+ 1084              		.loc 1 144 5 view .LVU313
+ 1085 0014 F520     		movs	r0, #245
+ 1086 0016 FFF7FEFF 		bl	USBHwCmd
+ 1087              	.LVL86:
+ 147:../common/lpcusb/target/usbhw_lpc.c ****     Wait4DevInt(CDFULL);
+ 1088              		.loc 1 147 5 view .LVU314
+ 147:../common/lpcusb/target/usbhw_lpc.c ****     Wait4DevInt(CDFULL);
+ 1089              		.loc 1 147 16 is_stmt 0 view .LVU315
+ 1090 001a 254B     		ldr	r3, .L96+8
+ 1091 001c 254A     		ldr	r2, .L96+12
+ 148:../common/lpcusb/target/usbhw_lpc.c ****     return USBCmdData;
+ 1092              		.loc 1 148 5 view .LVU316
+ 1093 001e 2020     		movs	r0, #32
+ 147:../common/lpcusb/target/usbhw_lpc.c ****     Wait4DevInt(CDFULL);
+ 1094              		.loc 1 147 16 view .LVU317
+ 1095 0020 1A60     		str	r2, [r3]
+ 148:../common/lpcusb/target/usbhw_lpc.c ****     return USBCmdData;
+ 1096              		.loc 1 148 5 is_stmt 1 view .LVU318
+ 1097 0022 FFF7FEFF 		bl	Wait4DevInt
+ 1098              	.LVL87:
+ 149:../common/lpcusb/target/usbhw_lpc.c **** }
+ 1099              		.loc 1 149 5 view .LVU319
+ 149:../common/lpcusb/target/usbhw_lpc.c **** }
+ 1100              		.loc 1 149 12 is_stmt 0 view .LVU320
+ 1101 0026 244B     		ldr	r3, .L96+16
+ 1102 0028 1868     		ldr	r0, [r3]
+ 1103              	.LVL88:
+ 149:../common/lpcusb/target/usbhw_lpc.c **** }
+ 1104              		.loc 1 149 12 view .LVU321
+ 1105              	.LBE27:
+ 1106              	.LBE26:
+ 548:../common/lpcusb/target/usbhw_lpc.c ****             _pfnFrameHandler(wFrame);
+ 1107              		.loc 1 548 13 is_stmt 1 view .LVU322
+ 1108 002a C0B2     		uxtb	r0, r0
+ 1109              		.loc 1 548 13 is_stmt 0 view .LVU323
+ 1110 002c 8847     		blx	r1
+ 1111              	.LVL89:
+ 1112              	.L70:
+ 549:../common/lpcusb/target/usbhw_lpc.c ****         }
+ 550:../common/lpcusb/target/usbhw_lpc.c ****     }
+ 551:../common/lpcusb/target/usbhw_lpc.c ****     
+ 552:../common/lpcusb/target/usbhw_lpc.c ****     // device status interrupt
+ 553:../common/lpcusb/target/usbhw_lpc.c ****     if (dwStatus & DEV_STAT) {
+ 1113              		.loc 1 553 5 is_stmt 1 view .LVU324
+ 1114              		.loc 1 553 8 is_stmt 0 view .LVU325
+ 1115 002e 2207     		lsls	r2, r4, #28
+ 1116 0030 17D5     		bpl	.L73
+ 554:../common/lpcusb/target/usbhw_lpc.c ****         /*  Clear DEV_STAT interrupt before reading DEV_STAT register.
+ 555:../common/lpcusb/target/usbhw_lpc.c ****             This prevents corrupted device status reads, see
+ 556:../common/lpcusb/target/usbhw_lpc.c ****             LPC2148 User manual revision 2, 25 july 2006.
+ 557:../common/lpcusb/target/usbhw_lpc.c ****         */
+ 558:../common/lpcusb/target/usbhw_lpc.c ****         USBDevIntClr = DEV_STAT;
+ 1117              		.loc 1 558 9 is_stmt 1 view .LVU326
+ARM GAS  /tmp/ccJtVQ71.s 			page 32
+
+
+ 1118              		.loc 1 558 22 is_stmt 0 view .LVU327
+ 1119 0032 0822     		movs	r2, #8
+ 1120 0034 214B     		ldr	r3, .L96+20
+ 1121              	.LBB28:
+ 1122              	.LBB29:
+ 144:../common/lpcusb/target/usbhw_lpc.c ****     
+ 1123              		.loc 1 144 5 view .LVU328
+ 1124 0036 FE20     		movs	r0, #254
+ 1125              	.LBE29:
+ 1126              	.LBE28:
+ 1127              		.loc 1 558 22 view .LVU329
+ 1128 0038 1A60     		str	r2, [r3]
+ 559:../common/lpcusb/target/usbhw_lpc.c ****         bDevStat = USBHwCmdRead(CMD_DEV_STATUS);
+ 1129              		.loc 1 559 9 is_stmt 1 view .LVU330
+ 1130              	.LVL90:
+ 1131              	.LBB32:
+ 1132              	.LBI28:
+ 141:../common/lpcusb/target/usbhw_lpc.c **** {
+ 1133              		.loc 1 141 11 view .LVU331
+ 1134              	.LBB30:
+ 144:../common/lpcusb/target/usbhw_lpc.c ****     
+ 1135              		.loc 1 144 5 view .LVU332
+ 1136 003a FFF7FEFF 		bl	USBHwCmd
+ 1137              	.LVL91:
+ 147:../common/lpcusb/target/usbhw_lpc.c ****     Wait4DevInt(CDFULL);
+ 1138              		.loc 1 147 5 view .LVU333
+ 147:../common/lpcusb/target/usbhw_lpc.c ****     Wait4DevInt(CDFULL);
+ 1139              		.loc 1 147 16 is_stmt 0 view .LVU334
+ 1140 003e 1C4B     		ldr	r3, .L96+8
+ 1141 0040 1F4A     		ldr	r2, .L96+24
+ 148:../common/lpcusb/target/usbhw_lpc.c ****     return USBCmdData;
+ 1142              		.loc 1 148 5 view .LVU335
+ 1143 0042 2020     		movs	r0, #32
+ 147:../common/lpcusb/target/usbhw_lpc.c ****     Wait4DevInt(CDFULL);
+ 1144              		.loc 1 147 16 view .LVU336
+ 1145 0044 1A60     		str	r2, [r3]
+ 148:../common/lpcusb/target/usbhw_lpc.c ****     return USBCmdData;
+ 1146              		.loc 1 148 5 is_stmt 1 view .LVU337
+ 1147 0046 FFF7FEFF 		bl	Wait4DevInt
+ 1148              	.LVL92:
+ 149:../common/lpcusb/target/usbhw_lpc.c **** }
+ 1149              		.loc 1 149 5 view .LVU338
+ 149:../common/lpcusb/target/usbhw_lpc.c **** }
+ 1150              		.loc 1 149 12 is_stmt 0 view .LVU339
+ 1151 004a 1B4B     		ldr	r3, .L96+16
+ 1152 004c 1B68     		ldr	r3, [r3]
+ 1153              	.LBE30:
+ 1154              	.LBE32:
+ 560:../common/lpcusb/target/usbhw_lpc.c ****         if (bDevStat & (CON_CH | SUS_CH | RST)) {
+ 1155              		.loc 1 560 12 view .LVU340
+ 1156 004e 13F01A0F 		tst	r3, #26
+ 1157              	.LBB33:
+ 1158              	.LBB31:
+ 149:../common/lpcusb/target/usbhw_lpc.c **** }
+ 1159              		.loc 1 149 12 view .LVU341
+ 1160 0052 D8B2     		uxtb	r0, r3
+ 1161              	.LVL93:
+ARM GAS  /tmp/ccJtVQ71.s 			page 33
+
+
+ 149:../common/lpcusb/target/usbhw_lpc.c **** }
+ 1162              		.loc 1 149 12 view .LVU342
+ 1163              	.LBE31:
+ 1164              	.LBE33:
+ 1165              		.loc 1 560 9 is_stmt 1 view .LVU343
+ 1166              		.loc 1 560 12 is_stmt 0 view .LVU344
+ 1167 0054 05D0     		beq	.L73
+ 561:../common/lpcusb/target/usbhw_lpc.c ****             // convert device status into something HW independent
+ 562:../common/lpcusb/target/usbhw_lpc.c ****             bStat = ((bDevStat & CON) ? DEV_STATUS_CONNECT : 0) |
+ 1168              		.loc 1 562 13 is_stmt 1 view .LVU345
+ 1169              	.LVL94:
+ 563:../common/lpcusb/target/usbhw_lpc.c ****                     ((bDevStat & SUS) ? DEV_STATUS_SUSPEND : 0) |
+ 564:../common/lpcusb/target/usbhw_lpc.c ****                     ((bDevStat & RST) ? DEV_STATUS_RESET : 0);
+ 565:../common/lpcusb/target/usbhw_lpc.c ****             // call handler
+ 566:../common/lpcusb/target/usbhw_lpc.c ****             if (_pfnDevIntHandler != NULL) {
+ 1170              		.loc 1 566 13 view .LVU346
+ 1171              		.loc 1 566 35 is_stmt 0 view .LVU347
+ 1172 0056 154B     		ldr	r3, .L96+4
+ 1173 0058 1B6C     		ldr	r3, [r3, #64]
+ 1174              		.loc 1 566 16 view .LVU348
+ 1175 005a 13B1     		cbz	r3, .L73
+ 567:../common/lpcusb/target/usbhw_lpc.c **** DEBUG_LED_ON(8);        
+ 1176              		.loc 1 567 16 is_stmt 1 view .LVU349
+ 568:../common/lpcusb/target/usbhw_lpc.c ****                 _pfnDevIntHandler(bStat);
+ 1177              		.loc 1 568 17 view .LVU350
+ 1178 005c 00F01500 		and	r0, r0, #21
+ 1179              	.LVL95:
+ 1180              		.loc 1 568 17 is_stmt 0 view .LVU351
+ 1181 0060 9847     		blx	r3
+ 1182              	.LVL96:
+ 1183              	.L73:
+ 569:../common/lpcusb/target/usbhw_lpc.c **** DEBUG_LED_OFF(8);       
+ 1184              		.loc 1 569 17 is_stmt 1 view .LVU352
+ 570:../common/lpcusb/target/usbhw_lpc.c ****             }
+ 571:../common/lpcusb/target/usbhw_lpc.c ****         }
+ 572:../common/lpcusb/target/usbhw_lpc.c ****     }
+ 573:../common/lpcusb/target/usbhw_lpc.c ****     
+ 574:../common/lpcusb/target/usbhw_lpc.c ****     // endpoint interrupt
+ 575:../common/lpcusb/target/usbhw_lpc.c ****     if (dwStatus & EP_SLOW) {
+ 1185              		.loc 1 575 5 view .LVU353
+ 1186              		.loc 1 575 8 is_stmt 0 view .LVU354
+ 1187 0062 6307     		lsls	r3, r4, #29
+ 1188 0064 1ED5     		bpl	.L68
+ 576:../common/lpcusb/target/usbhw_lpc.c ****         // clear EP_SLOW
+ 577:../common/lpcusb/target/usbhw_lpc.c ****         USBDevIntClr = EP_SLOW;
+ 1189              		.loc 1 577 9 is_stmt 1 view .LVU355
+ 1190              		.loc 1 577 22 is_stmt 0 view .LVU356
+ 1191 0066 0422     		movs	r2, #4
+ 578:../common/lpcusb/target/usbhw_lpc.c ****         // check all endpoints
+ 579:../common/lpcusb/target/usbhw_lpc.c ****         for (i = 0; i < 32; i++) {
+ 1192              		.loc 1 579 16 view .LVU357
+ 1193 0068 0024     		movs	r4, #0
+ 1194              	.LVL97:
+ 577:../common/lpcusb/target/usbhw_lpc.c ****         // check all endpoints
+ 1195              		.loc 1 577 22 view .LVU358
+ 1196 006a 144B     		ldr	r3, .L96+20
+ 580:../common/lpcusb/target/usbhw_lpc.c ****             dwIntBit = (1 << i);
+ARM GAS  /tmp/ccJtVQ71.s 			page 34
+
+
+ 581:../common/lpcusb/target/usbhw_lpc.c ****             if (USBEpIntSt & dwIntBit) {
+ 1197              		.loc 1 581 17 view .LVU359
+ 1198 006c 154D     		ldr	r5, .L96+28
+ 582:../common/lpcusb/target/usbhw_lpc.c ****                 // clear int (and retrieve status)
+ 583:../common/lpcusb/target/usbhw_lpc.c ****                 USBEpIntClr = dwIntBit;
+ 1199              		.loc 1 583 29 view .LVU360
+ 1200 006e 164E     		ldr	r6, .L96+32
+ 584:../common/lpcusb/target/usbhw_lpc.c ****                 Wait4DevInt(CDFULL);
+ 585:../common/lpcusb/target/usbhw_lpc.c ****                 bEPStat = USBCmdData;
+ 1201              		.loc 1 585 27 view .LVU361
+ 1202 0070 114F     		ldr	r7, .L96+16
+ 577:../common/lpcusb/target/usbhw_lpc.c ****         // check all endpoints
+ 1203              		.loc 1 577 22 view .LVU362
+ 1204 0072 1A60     		str	r2, [r3]
+ 579:../common/lpcusb/target/usbhw_lpc.c ****             dwIntBit = (1 << i);
+ 1205              		.loc 1 579 9 is_stmt 1 view .LVU363
+ 1206              	.LVL98:
+ 579:../common/lpcusb/target/usbhw_lpc.c ****             dwIntBit = (1 << i);
+ 1207              		.loc 1 579 21 view .LVU364
+ 1208              	.L79:
+ 580:../common/lpcusb/target/usbhw_lpc.c ****             if (USBEpIntSt & dwIntBit) {
+ 1209              		.loc 1 580 13 view .LVU365
+ 580:../common/lpcusb/target/usbhw_lpc.c ****             if (USBEpIntSt & dwIntBit) {
+ 1210              		.loc 1 580 27 is_stmt 0 view .LVU366
+ 1211 0074 0123     		movs	r3, #1
+ 581:../common/lpcusb/target/usbhw_lpc.c ****                 // clear int (and retrieve status)
+ 1212              		.loc 1 581 17 view .LVU367
+ 1213 0076 2A68     		ldr	r2, [r5]
+ 580:../common/lpcusb/target/usbhw_lpc.c ****             if (USBEpIntSt & dwIntBit) {
+ 1214              		.loc 1 580 27 view .LVU368
+ 1215 0078 A340     		lsls	r3, r3, r4
+ 1216              	.LVL99:
+ 581:../common/lpcusb/target/usbhw_lpc.c ****                 // clear int (and retrieve status)
+ 1217              		.loc 1 581 13 is_stmt 1 view .LVU369
+ 581:../common/lpcusb/target/usbhw_lpc.c ****                 // clear int (and retrieve status)
+ 1218              		.loc 1 581 16 is_stmt 0 view .LVU370
+ 1219 007a 1A42     		tst	r2, r3
+ 1220 007c 0FD0     		beq	.L77
+ 583:../common/lpcusb/target/usbhw_lpc.c ****                 Wait4DevInt(CDFULL);
+ 1221              		.loc 1 583 17 is_stmt 1 view .LVU371
+ 584:../common/lpcusb/target/usbhw_lpc.c ****                 bEPStat = USBCmdData;
+ 1222              		.loc 1 584 17 is_stmt 0 view .LVU372
+ 1223 007e 2020     		movs	r0, #32
+ 583:../common/lpcusb/target/usbhw_lpc.c ****                 Wait4DevInt(CDFULL);
+ 1224              		.loc 1 583 29 view .LVU373
+ 1225 0080 3360     		str	r3, [r6]
+ 584:../common/lpcusb/target/usbhw_lpc.c ****                 bEPStat = USBCmdData;
+ 1226              		.loc 1 584 17 is_stmt 1 view .LVU374
+ 1227 0082 FFF7FEFF 		bl	Wait4DevInt
+ 1228              	.LVL100:
+ 1229              		.loc 1 585 17 view .LVU375
+ 586:../common/lpcusb/target/usbhw_lpc.c ****                 // convert EP pipe stat into something HW independent
+ 587:../common/lpcusb/target/usbhw_lpc.c ****                 bStat = ((bEPStat & EPSTAT_FE) ? EP_STATUS_DATA : 0) |
+ 588:../common/lpcusb/target/usbhw_lpc.c ****                         ((bEPStat & EPSTAT_ST) ? EP_STATUS_STALLED : 0) |
+ 589:../common/lpcusb/target/usbhw_lpc.c ****                         ((bEPStat & EPSTAT_STP) ? EP_STATUS_SETUP : 0) |
+ 590:../common/lpcusb/target/usbhw_lpc.c ****                         ((bEPStat & EPSTAT_EPN) ? EP_STATUS_NACKED : 0) |
+ 591:../common/lpcusb/target/usbhw_lpc.c ****                         ((bEPStat & EPSTAT_PO) ? EP_STATUS_ERROR : 0);
+ARM GAS  /tmp/ccJtVQ71.s 			page 35
+
+
+ 592:../common/lpcusb/target/usbhw_lpc.c ****                 // call handler
+ 593:../common/lpcusb/target/usbhw_lpc.c ****                 if (_apfnEPIntHandlers[i / 2] != NULL) {
+ 1230              		.loc 1 593 39 is_stmt 0 view .LVU376
+ 1231 0086 094B     		ldr	r3, .L96+4
+ 1232              		.loc 1 593 42 view .LVU377
+ 1233 0088 6010     		asrs	r0, r4, #1
+ 1234              		.loc 1 593 39 view .LVU378
+ 1235 008a 53F82030 		ldr	r3, [r3, r0, lsl #2]
+ 585:../common/lpcusb/target/usbhw_lpc.c ****                 // convert EP pipe stat into something HW independent
+ 1236              		.loc 1 585 27 view .LVU379
+ 1237 008e 3968     		ldr	r1, [r7]
+ 1238              	.LVL101:
+ 587:../common/lpcusb/target/usbhw_lpc.c ****                         ((bEPStat & EPSTAT_ST) ? EP_STATUS_STALLED : 0) |
+ 1239              		.loc 1 587 17 is_stmt 1 view .LVU380
+ 1240              		.loc 1 593 17 view .LVU381
+ 1241              		.loc 1 593 20 is_stmt 0 view .LVU382
+ 1242 0090 2BB1     		cbz	r3, .L77
+ 594:../common/lpcusb/target/usbhw_lpc.c **** DEBUG_LED_ON(10);       
+ 1243              		.loc 1 594 17 is_stmt 1 view .LVU383
+ 595:../common/lpcusb/target/usbhw_lpc.c ****                     _apfnEPIntHandlers[i / 2](IDX2EP(i), bStat);
+ 1244              		.loc 1 595 21 view .LVU384
+ 1245              		.loc 1 595 47 is_stmt 0 view .LVU385
+ 1246 0092 40EAC410 		orr	r0, r0, r4, lsl #7
+ 1247              		.loc 1 595 21 view .LVU386
+ 1248 0096 01F01F01 		and	r1, r1, #31
+ 1249              	.LVL102:
+ 1250              		.loc 1 595 21 view .LVU387
+ 1251 009a C0B2     		uxtb	r0, r0
+ 1252 009c 9847     		blx	r3
+ 1253              	.LVL103:
+ 1254              	.L77:
+ 596:../common/lpcusb/target/usbhw_lpc.c **** DEBUG_LED_OFF(10);
+ 1255              		.loc 1 596 18 is_stmt 1 discriminator 2 view .LVU388
+ 579:../common/lpcusb/target/usbhw_lpc.c ****             dwIntBit = (1 << i);
+ 1256              		.loc 1 579 29 discriminator 2 view .LVU389
+ 579:../common/lpcusb/target/usbhw_lpc.c ****             dwIntBit = (1 << i);
+ 1257              		.loc 1 579 30 is_stmt 0 discriminator 2 view .LVU390
+ 1258 009e 0134     		adds	r4, r4, #1
+ 1259              	.LVL104:
+ 579:../common/lpcusb/target/usbhw_lpc.c ****             dwIntBit = (1 << i);
+ 1260              		.loc 1 579 21 is_stmt 1 discriminator 2 view .LVU391
+ 579:../common/lpcusb/target/usbhw_lpc.c ****             dwIntBit = (1 << i);
+ 1261              		.loc 1 579 9 is_stmt 0 discriminator 2 view .LVU392
+ 1262 00a0 202C     		cmp	r4, #32
+ 1263 00a2 E7D1     		bne	.L79
+ 1264              	.LVL105:
+ 1265              	.L68:
+ 597:../common/lpcusb/target/usbhw_lpc.c ****                 }
+ 598:../common/lpcusb/target/usbhw_lpc.c ****             }
+ 599:../common/lpcusb/target/usbhw_lpc.c ****         }
+ 600:../common/lpcusb/target/usbhw_lpc.c ****     }
+ 601:../common/lpcusb/target/usbhw_lpc.c ****     
+ 602:../common/lpcusb/target/usbhw_lpc.c **** DEBUG_LED_OFF(9);       
+ 603:../common/lpcusb/target/usbhw_lpc.c **** }
+ 1266              		.loc 1 603 1 view .LVU393
+ 1267 00a4 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 1268              	.L97:
+ARM GAS  /tmp/ccJtVQ71.s 			page 36
+
+
+ 1269 00a6 00BF     		.align	2
+ 1270              	.L96:
+ 1271 00a8 00C20050 		.word	1342226944
+ 1272 00ac 00000000 		.word	.LANCHOR0
+ 1273 00b0 10C20050 		.word	1342226960
+ 1274 00b4 0002F500 		.word	16056832
+ 1275 00b8 14C20050 		.word	1342226964
+ 1276 00bc 08C20050 		.word	1342226952
+ 1277 00c0 0002FE00 		.word	16646656
+ 1278 00c4 30C20050 		.word	1342226992
+ 1279 00c8 38C20050 		.word	1342227000
+ 1280              		.cfi_endproc
+ 1281              	.LFE20:
+ 1283              		.section	.text.USBHwInit,"ax",%progbits
+ 1284              		.align	1
+ 1285              		.global	USBHwInit
+ 1286              		.syntax unified
+ 1287              		.thumb
+ 1288              		.thumb_func
+ 1289              		.fpu softvfp
+ 1291              	USBHwInit:
+ 1292              	.LFB21:
+ 604:../common/lpcusb/target/usbhw_lpc.c **** 
+ 605:../common/lpcusb/target/usbhw_lpc.c **** 
+ 606:../common/lpcusb/target/usbhw_lpc.c **** 
+ 607:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 608:../common/lpcusb/target/usbhw_lpc.c ****     Initialises the USB hardware
+ 609:../common/lpcusb/target/usbhw_lpc.c ****         
+ 610:../common/lpcusb/target/usbhw_lpc.c ****     This function assumes that the hardware is connected as shown in
+ 611:../common/lpcusb/target/usbhw_lpc.c ****     section 10.1 of the LPC2148 data sheet:
+ 612:../common/lpcusb/target/usbhw_lpc.c ****     * P0.31 controls a switch to connect a 1.5k pull-up to D+ if low.
+ 613:../common/lpcusb/target/usbhw_lpc.c ****     * P0.23 is connected to USB VCC.
+ 614:../common/lpcusb/target/usbhw_lpc.c ****     
+ 615:../common/lpcusb/target/usbhw_lpc.c ****     Embedded artists board: make sure to disconnect P0.23 LED as it
+ 616:../common/lpcusb/target/usbhw_lpc.c ****     acts as a pull-up and so prevents detection of USB disconnect.
+ 617:../common/lpcusb/target/usbhw_lpc.c ****         
+ 618:../common/lpcusb/target/usbhw_lpc.c ****     @return TRUE if the hardware was successfully initialised
+ 619:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 620:../common/lpcusb/target/usbhw_lpc.c **** BOOL USBHwInit(void)
+ 621:../common/lpcusb/target/usbhw_lpc.c **** {
+ 1293              		.loc 1 621 1 is_stmt 1 view -0
+ 1294              		.cfi_startproc
+ 1295              		@ args = 0, pretend = 0, frame = 0
+ 1296              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1297 0000 08B5     		push	{r3, lr}
+ 1298              		.cfi_def_cfa_offset 8
+ 1299              		.cfi_offset 3, -8
+ 1300              		.cfi_offset 14, -4
+ 622:../common/lpcusb/target/usbhw_lpc.c **** #ifdef LPC17xx
+ 623:../common/lpcusb/target/usbhw_lpc.c **** 	// P2.9 is USB_CONNECT
+ 624:../common/lpcusb/target/usbhw_lpc.c ****     PINSEL4 = (PINSEL4 & ~(3 << 18)) | (1 << 18);
+ 1301              		.loc 1 624 5 view .LVU395
+ 1302              		.loc 1 624 16 is_stmt 0 view .LVU396
+ 1303 0002 264A     		ldr	r2, .L105
+ 1304 0004 1368     		ldr	r3, [r2]
+ 1305              		.loc 1 624 24 view .LVU397
+ 1306 0006 23F44023 		bic	r3, r3, #786432
+ARM GAS  /tmp/ccJtVQ71.s 			page 37
+
+
+ 1307              		.loc 1 624 38 view .LVU398
+ 1308 000a 43F48023 		orr	r3, r3, #262144
+ 1309              		.loc 1 624 13 view .LVU399
+ 1310 000e 1360     		str	r3, [r2]
+ 625:../common/lpcusb/target/usbhw_lpc.c **** 
+ 626:../common/lpcusb/target/usbhw_lpc.c **** 	// P1.18 is USB_UP_LED
+ 627:../common/lpcusb/target/usbhw_lpc.c ****     PINSEL3 = (PINSEL3 & ~(3 << 4)) | (1 << 4);
+ 1311              		.loc 1 627 5 is_stmt 1 view .LVU400
+ 1312              		.loc 1 627 16 is_stmt 0 view .LVU401
+ 1313 0010 52F8043C 		ldr	r3, [r2, #-4]
+ 1314              		.loc 1 627 24 view .LVU402
+ 1315 0014 23F03003 		bic	r3, r3, #48
+ 1316              		.loc 1 627 37 view .LVU403
+ 1317 0018 43F01003 		orr	r3, r3, #16
+ 1318              		.loc 1 627 13 view .LVU404
+ 1319 001c 42F8043C 		str	r3, [r2, #-4]
+ 628:../common/lpcusb/target/usbhw_lpc.c **** 
+ 629:../common/lpcusb/target/usbhw_lpc.c **** 	// P1.30 is VBUS
+ 630:../common/lpcusb/target/usbhw_lpc.c ****     PINSEL3 = (PINSEL3 & ~(3 << 28)) | (2 << 28);
+ 1320              		.loc 1 630 5 is_stmt 1 view .LVU405
+ 1321              		.loc 1 630 16 is_stmt 0 view .LVU406
+ 1322 0020 52F8043C 		ldr	r3, [r2, #-4]
+ 1323              		.loc 1 630 24 view .LVU407
+ 1324 0024 23F04053 		bic	r3, r3, #805306368
+ 1325              		.loc 1 630 38 view .LVU408
+ 1326 0028 43F00053 		orr	r3, r3, #536870912
+ 1327              		.loc 1 630 13 view .LVU409
+ 1328 002c 42F8043C 		str	r3, [r2, #-4]
+ 631:../common/lpcusb/target/usbhw_lpc.c **** 
+ 632:../common/lpcusb/target/usbhw_lpc.c **** 	// P0.29 is USB_D+
+ 633:../common/lpcusb/target/usbhw_lpc.c ****     PINSEL1 = (PINSEL1 & ~(3 << 26)) | (1 << 26);
+ 1329              		.loc 1 633 5 is_stmt 1 view .LVU410
+ 1330              		.loc 1 633 16 is_stmt 0 view .LVU411
+ 1331 0030 52F80C3C 		ldr	r3, [r2, #-12]
+ 1332              		.loc 1 633 24 view .LVU412
+ 1333 0034 23F04063 		bic	r3, r3, #201326592
+ 1334              		.loc 1 633 38 view .LVU413
+ 1335 0038 43F08063 		orr	r3, r3, #67108864
+ 1336              		.loc 1 633 13 view .LVU414
+ 1337 003c 42F80C3C 		str	r3, [r2, #-12]
+ 634:../common/lpcusb/target/usbhw_lpc.c **** 
+ 635:../common/lpcusb/target/usbhw_lpc.c **** 	// P0.30 is USB_D-
+ 636:../common/lpcusb/target/usbhw_lpc.c ****     PINSEL1 = (PINSEL1 & ~(3 << 28)) | (1 << 28);
+ 1338              		.loc 1 636 5 is_stmt 1 view .LVU415
+ 1339              		.loc 1 636 16 is_stmt 0 view .LVU416
+ 1340 0040 52F80C3C 		ldr	r3, [r2, #-12]
+ 1341              		.loc 1 636 24 view .LVU417
+ 1342 0044 23F04053 		bic	r3, r3, #805306368
+ 1343              		.loc 1 636 38 view .LVU418
+ 1344 0048 43F08053 		orr	r3, r3, #268435456
+ 1345              		.loc 1 636 13 view .LVU419
+ 1346 004c 42F80C3C 		str	r3, [r2, #-12]
+ 637:../common/lpcusb/target/usbhw_lpc.c **** 
+ 638:../common/lpcusb/target/usbhw_lpc.c **** 	// enable PUSB
+ 639:../common/lpcusb/target/usbhw_lpc.c **** 	PCONP |= PCONP_PCUSB;
+ 1347              		.loc 1 639 2 is_stmt 1 view .LVU420
+ 1348              		.loc 1 639 8 is_stmt 0 view .LVU421
+ARM GAS  /tmp/ccJtVQ71.s 			page 38
+
+
+ 1349 0050 02F55022 		add	r2, r2, #851968
+ 1350 0054 D2F8B430 		ldr	r3, [r2, #180]
+ 1351 0058 B432     		adds	r2, r2, #180
+ 1352 005a 43F00043 		orr	r3, r3, #-2147483648
+ 1353 005e 1360     		str	r3, [r2]
+ 640:../common/lpcusb/target/usbhw_lpc.c **** 
+ 641:../common/lpcusb/target/usbhw_lpc.c **** 	/* enable the USB controller clocks */
+ 642:../common/lpcusb/target/usbhw_lpc.c ****     USBClkCtrl |= (USBClkCtrl_DEV_CLK_EN | USBClkCtrl_AHB_CLK_EN);
+ 1354              		.loc 1 642 5 is_stmt 1 view .LVU422
+ 1355              		.loc 1 642 16 is_stmt 0 view .LVU423
+ 1356 0060 0F4A     		ldr	r2, .L105+4
+ 1357 0062 1368     		ldr	r3, [r2]
+ 1358 0064 43F01203 		orr	r3, r3, #18
+ 1359 0068 1360     		str	r3, [r2]
+ 643:../common/lpcusb/target/usbhw_lpc.c ****     while (!(USBClkSt & USBClkSt_DEV_CLK_ON));
+ 1360              		.loc 1 643 5 is_stmt 1 view .LVU424
+ 1361              		.loc 1 643 14 is_stmt 0 view .LVU425
+ 1362 006a 0E4B     		ldr	r3, .L105+8
+ 1363 006c 1A46     		mov	r2, r3
+ 1364              	.L99:
+ 1365              		.loc 1 643 46 is_stmt 1 discriminator 1 view .LVU426
+ 1366              		.loc 1 643 11 discriminator 1 view .LVU427
+ 1367              		.loc 1 643 14 is_stmt 0 discriminator 1 view .LVU428
+ 1368 006e 1968     		ldr	r1, [r3]
+ 1369              		.loc 1 643 11 discriminator 1 view .LVU429
+ 1370 0070 8907     		lsls	r1, r1, #30
+ 1371 0072 FCD5     		bpl	.L99
+ 1372              	.L100:
+ 644:../common/lpcusb/target/usbhw_lpc.c ****     while (!(USBClkSt & USBClkSt_AHB_CLK_ON));
+ 1373              		.loc 1 644 46 is_stmt 1 discriminator 1 view .LVU430
+ 1374              		.loc 1 644 11 discriminator 1 view .LVU431
+ 1375              		.loc 1 644 14 is_stmt 0 discriminator 1 view .LVU432
+ 1376 0074 1368     		ldr	r3, [r2]
+ 1377              		.loc 1 644 11 discriminator 1 view .LVU433
+ 1378 0076 DB06     		lsls	r3, r3, #27
+ 1379 0078 FCD5     		bpl	.L100
+ 645:../common/lpcusb/target/usbhw_lpc.c **** #endif
+ 646:../common/lpcusb/target/usbhw_lpc.c **** 
+ 647:../common/lpcusb/target/usbhw_lpc.c **** #ifdef LPC214x
+ 648:../common/lpcusb/target/usbhw_lpc.c ****     
+ 649:../common/lpcusb/target/usbhw_lpc.c ****     // configure P0.23 for Vbus sense
+ 650:../common/lpcusb/target/usbhw_lpc.c ****     PINSEL1 = (PINSEL1 & ~(3 << 14)) | (1 << 14);   // P0.23
+ 651:../common/lpcusb/target/usbhw_lpc.c ****     // configure P0.31 for CONNECT
+ 652:../common/lpcusb/target/usbhw_lpc.c ****     PINSEL1 = (PINSEL1 & ~(3 << 30)) | (2 << 30);   // P0.31
+ 653:../common/lpcusb/target/usbhw_lpc.c **** 
+ 654:../common/lpcusb/target/usbhw_lpc.c ****     // enable PUSB
+ 655:../common/lpcusb/target/usbhw_lpc.c ****     PCONP |= (1 << 31);     
+ 656:../common/lpcusb/target/usbhw_lpc.c **** 
+ 657:../common/lpcusb/target/usbhw_lpc.c ****     // initialise PLL
+ 658:../common/lpcusb/target/usbhw_lpc.c ****     PLL1CON = 1;            // enable PLL
+ 659:../common/lpcusb/target/usbhw_lpc.c ****     PLL1CFG = (1 << 5) | 3; // P = 2, M = 4
+ 660:../common/lpcusb/target/usbhw_lpc.c ****     PLL1FEED = 0xAA;
+ 661:../common/lpcusb/target/usbhw_lpc.c ****     PLL1FEED = 0x55;
+ 662:../common/lpcusb/target/usbhw_lpc.c ****     while ((PLL1STAT & (1 << 10)) == 0);
+ 663:../common/lpcusb/target/usbhw_lpc.c **** 
+ 664:../common/lpcusb/target/usbhw_lpc.c ****     PLL1CON = 3;            // enable and connect
+ 665:../common/lpcusb/target/usbhw_lpc.c ****     PLL1FEED = 0xAA;
+ARM GAS  /tmp/ccJtVQ71.s 			page 39
+
+
+ 666:../common/lpcusb/target/usbhw_lpc.c ****     PLL1FEED = 0x55;
+ 667:../common/lpcusb/target/usbhw_lpc.c **** 
+ 668:../common/lpcusb/target/usbhw_lpc.c **** #endif
+ 669:../common/lpcusb/target/usbhw_lpc.c **** 
+ 670:../common/lpcusb/target/usbhw_lpc.c **** #ifdef LPC23xx
+ 671:../common/lpcusb/target/usbhw_lpc.c **** #ifdef LPC2378_PORTB
+ 672:../common/lpcusb/target/usbhw_lpc.c ****     PINSEL1 = (PINSEL1 & ~(3 << 30)) | (1 << 30);
+ 673:../common/lpcusb/target/usbhw_lpc.c ****     PINSEL3 = (PINSEL3 & ~(3 << 28)) | (2 << 28);
+ 674:../common/lpcusb/target/usbhw_lpc.c ****     /* Due to a bug in the LPC23xx chips, the connection functionality must be
+ 675:../common/lpcusb/target/usbhw_lpc.c ****     * simulated using GPIO. Hopefully for production this will be fixed and the
+ 676:../common/lpcusb/target/usbhw_lpc.c ****     * commented out code will work */
+ 677:../common/lpcusb/target/usbhw_lpc.c ****     //PINSEL0 = (PINSEL0 & ~((3 << 26) | (3 << 28))) | (1 << 26) | (1 << 28); /* Doesn't work due t
+ 678:../common/lpcusb/target/usbhw_lpc.c ****     PINSEL0 = (PINSEL0 & ~((3 << 26) | (3 << 28))) | (1 << 26);
+ 679:../common/lpcusb/target/usbhw_lpc.c ****     FIO0DIR |= (1<<14); /* Set pin to output */
+ 680:../common/lpcusb/target/usbhw_lpc.c ****     FIO0SET = (1<<14); /* Set output high to disconnect */
+ 681:../common/lpcusb/target/usbhw_lpc.c ****     
+ 682:../common/lpcusb/target/usbhw_lpc.c **** #else
+ 683:../common/lpcusb/target/usbhw_lpc.c ****     PINSEL1 = (PINSEL1 & ~((3 << 26) | (3 << 28))) | (1 << 26) | (1 << 28);
+ 684:../common/lpcusb/target/usbhw_lpc.c ****     PINSEL3 = (PINSEL3 & ~((3 << 4) | (3 << 28))) | (1 << 4) | (2 << 28);
+ 685:../common/lpcusb/target/usbhw_lpc.c ****     /* Due to a bug in the LPC23xx chips, the connection functionality must be
+ 686:../common/lpcusb/target/usbhw_lpc.c ****     * simulated using GPIO. Hopefully for production this will be fixed and the
+ 687:../common/lpcusb/target/usbhw_lpc.c ****     * commented out code will work */
+ 688:../common/lpcusb/target/usbhw_lpc.c ****     //PINSEL4 = (PINSEL4 & ~(3 << 18)) | (1 << 18); /* Doesn't work due to bug in chip */
+ 689:../common/lpcusb/target/usbhw_lpc.c ****     PINSEL4 = (PINSEL4 & ~(3 << 18)); /* Use pin as GPIO */
+ 690:../common/lpcusb/target/usbhw_lpc.c ****     FIO2DIR |= (1<<9); /* Set pin to output */
+ 691:../common/lpcusb/target/usbhw_lpc.c ****     FIO2SET = (1<<9); /* Set output high to disconnect */
+ 692:../common/lpcusb/target/usbhw_lpc.c **** #endif
+ 693:../common/lpcusb/target/usbhw_lpc.c **** 
+ 694:../common/lpcusb/target/usbhw_lpc.c ****     // enable PUSB
+ 695:../common/lpcusb/target/usbhw_lpc.c ****     PCONP |= (1 << 31);     
+ 696:../common/lpcusb/target/usbhw_lpc.c **** 
+ 697:../common/lpcusb/target/usbhw_lpc.c ****   /* The LPC23xx uses a single PLL, and has multiple clock dividers for each
+ 698:../common/lpcusb/target/usbhw_lpc.c ****    * peripheral. These settings assume a PLL frequency of 288 MHz */
+ 699:../common/lpcusb/target/usbhw_lpc.c **** 
+ 700:../common/lpcusb/target/usbhw_lpc.c ****     USBCLKCFG = 5; /* 288 MHz / 48 MHz = 6 */
+ 701:../common/lpcusb/target/usbhw_lpc.c **** 
+ 702:../common/lpcusb/target/usbhw_lpc.c **** #ifdef LPC2378_PORTB
+ 703:../common/lpcusb/target/usbhw_lpc.c ****     USBClkCtrl = (1 << 1) | (1 << 3) | (1 << 4); /* Enable the clocks */
+ 704:../common/lpcusb/target/usbhw_lpc.c ****     while (!(USBClkSt & ((1 << 1) | (1 << 3) | (1 << 4))));
+ 705:../common/lpcusb/target/usbhw_lpc.c ****     USBPortSel = 0x3; /* Set LPC to use USB Port B pins */
+ 706:../common/lpcusb/target/usbhw_lpc.c **** #else
+ 707:../common/lpcusb/target/usbhw_lpc.c ****     USBClkCtrl = (1 << 1) | (1 << 4); /* Enable the clocks */
+ 708:../common/lpcusb/target/usbhw_lpc.c ****     while (!(USBClkSt & ((1 << 1) | (1 << 4))));
+ 709:../common/lpcusb/target/usbhw_lpc.c **** #endif
+ 710:../common/lpcusb/target/usbhw_lpc.c **** 
+ 711:../common/lpcusb/target/usbhw_lpc.c **** #endif
+ 712:../common/lpcusb/target/usbhw_lpc.c ****     
+ 713:../common/lpcusb/target/usbhw_lpc.c ****     // disable/clear all interrupts for now
+ 714:../common/lpcusb/target/usbhw_lpc.c ****     USBDevIntEn = 0;
+ 1380              		.loc 1 714 5 is_stmt 1 view .LVU434
+ 1381              		.loc 1 714 17 is_stmt 0 view .LVU435
+ 1382 007a 0020     		movs	r0, #0
+ 1383 007c 0A4B     		ldr	r3, .L105+12
+ 715:../common/lpcusb/target/usbhw_lpc.c ****     USBDevIntClr = 0xFFFFFFFF;
+ 1384              		.loc 1 715 18 view .LVU436
+ 1385 007e 0B4A     		ldr	r2, .L105+16
+ 714:../common/lpcusb/target/usbhw_lpc.c ****     USBDevIntClr = 0xFFFFFFFF;
+ARM GAS  /tmp/ccJtVQ71.s 			page 40
+
+
+ 1386              		.loc 1 714 17 view .LVU437
+ 1387 0080 1860     		str	r0, [r3]
+ 1388              		.loc 1 715 5 is_stmt 1 view .LVU438
+ 1389              		.loc 1 715 18 is_stmt 0 view .LVU439
+ 1390 0082 4FF0FF33 		mov	r3, #-1
+ 1391 0086 1360     		str	r3, [r2]
+ 716:../common/lpcusb/target/usbhw_lpc.c ****     USBDevIntPri = 0;
+ 1392              		.loc 1 716 5 is_stmt 1 view .LVU440
+ 1393              		.loc 1 716 18 is_stmt 0 view .LVU441
+ 1394 0088 5062     		str	r0, [r2, #36]
+ 717:../common/lpcusb/target/usbhw_lpc.c **** 
+ 718:../common/lpcusb/target/usbhw_lpc.c ****     USBEpIntEn = 0;
+ 1395              		.loc 1 718 5 is_stmt 1 view .LVU442
+ 1396              		.loc 1 718 16 is_stmt 0 view .LVU443
+ 1397 008a D062     		str	r0, [r2, #44]
+ 719:../common/lpcusb/target/usbhw_lpc.c ****     USBEpIntClr = 0xFFFFFFFF;
+ 1398              		.loc 1 719 5 is_stmt 1 view .LVU444
+ 1399              		.loc 1 719 17 is_stmt 0 view .LVU445
+ 1400 008c 1363     		str	r3, [r2, #48]
+ 720:../common/lpcusb/target/usbhw_lpc.c ****     USBEpIntPri = 0;
+ 1401              		.loc 1 720 5 is_stmt 1 view .LVU446
+ 1402              		.loc 1 720 17 is_stmt 0 view .LVU447
+ 1403 008e 084B     		ldr	r3, .L105+20
+ 1404 0090 1860     		str	r0, [r3]
+ 721:../common/lpcusb/target/usbhw_lpc.c **** 
+ 722:../common/lpcusb/target/usbhw_lpc.c ****     // by default, only ACKs generate interrupts
+ 723:../common/lpcusb/target/usbhw_lpc.c ****     USBHwNakIntEnable(0);
+ 1405              		.loc 1 723 5 is_stmt 1 view .LVU448
+ 1406 0092 FFF7FEFF 		bl	USBHwNakIntEnable
+ 1407              	.LVL106:
+ 724:../common/lpcusb/target/usbhw_lpc.c ****     
+ 725:../common/lpcusb/target/usbhw_lpc.c ****     // init debug leds
+ 726:../common/lpcusb/target/usbhw_lpc.c ****     DEBUG_LED_INIT(8);
+ 1408              		.loc 1 726 22 view .LVU449
+ 727:../common/lpcusb/target/usbhw_lpc.c ****     DEBUG_LED_INIT(9);
+ 1409              		.loc 1 727 22 view .LVU450
+ 728:../common/lpcusb/target/usbhw_lpc.c ****     DEBUG_LED_INIT(10);
+ 1410              		.loc 1 728 23 view .LVU451
+ 729:../common/lpcusb/target/usbhw_lpc.c **** 
+ 730:../common/lpcusb/target/usbhw_lpc.c ****     return TRUE;
+ 1411              		.loc 1 730 5 view .LVU452
+ 731:../common/lpcusb/target/usbhw_lpc.c **** }
+ 1412              		.loc 1 731 1 is_stmt 0 view .LVU453
+ 1413 0096 0120     		movs	r0, #1
+ 1414 0098 08BD     		pop	{r3, pc}
+ 1415              	.L106:
+ 1416 009a 00BF     		.align	2
+ 1417              	.L105:
+ 1418 009c 10C00240 		.word	1073922064
+ 1419 00a0 F4CF0050 		.word	1342230516
+ 1420 00a4 F8CF0050 		.word	1342230520
+ 1421 00a8 04C20050 		.word	1342226948
+ 1422 00ac 08C20050 		.word	1342226952
+ 1423 00b0 40C20050 		.word	1342227008
+ 1424              		.cfi_endproc
+ 1425              	.LFE21:
+ 1427              		.section	.text.USBSetupDMADescriptor,"ax",%progbits
+ARM GAS  /tmp/ccJtVQ71.s 			page 41
+
+
+ 1428              		.align	1
+ 1429              		.global	USBSetupDMADescriptor
+ 1430              		.syntax unified
+ 1431              		.thumb
+ 1432              		.thumb_func
+ 1433              		.fpu softvfp
+ 1435              	USBSetupDMADescriptor:
+ 1436              	.LVL107:
+ 1437              	.LFB22:
+ 732:../common/lpcusb/target/usbhw_lpc.c **** 
+ 733:../common/lpcusb/target/usbhw_lpc.c **** 
+ 734:../common/lpcusb/target/usbhw_lpc.c **** 
+ 735:../common/lpcusb/target/usbhw_lpc.c **** 
+ 736:../common/lpcusb/target/usbhw_lpc.c **** 
+ 737:../common/lpcusb/target/usbhw_lpc.c **** 
+ 738:../common/lpcusb/target/usbhw_lpc.c **** //FIXME check all the DMA stuff
+ 739:../common/lpcusb/target/usbhw_lpc.c **** 
+ 740:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 741:../common/lpcusb/target/usbhw_lpc.c ****     This function is used to setup and populated the various elements of a LPC2148 DMA desccriptor 
+ 742:../common/lpcusb/target/usbhw_lpc.c ****     after calling this function, the DMA descriptor could be used as part of a DMA tranfer.
+ 743:../common/lpcusb/target/usbhw_lpc.c ****     
+ 744:../common/lpcusb/target/usbhw_lpc.c ****         
+ 745:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] dmaDescriptor    A pointer to a 4 or 5 element long array of U32's that the DMA des
+ 746:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] nextDdPtr        The value to be placed in the "Next_DD_Pointer" value of the DMA d
+ 747:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] isIsocFlag       Flag to indicate if this DMA descriptor is for an ISOC endpoint (w
+ 748:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] maxPacketSize    The maximum packet size that can be sent/received for the endpoint
+ 749:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] dmaLengthIsocNumFrames    For non-ISOC endpoints, the number of bytes in the buffer
+ 750:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] dmaBufferStartAddress    Start address for the dma transfer (location to store data
+ 751:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] isocPacketSizeMemoryAddress   If a non-ISOC endpoint, set this to NULL, if an ISOC 
+ 752:../common/lpcusb/target/usbhw_lpc.c **** 
+ 753:../common/lpcusb/target/usbhw_lpc.c ****     @return  void
+ 754:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 755:../common/lpcusb/target/usbhw_lpc.c **** void USBSetupDMADescriptor(
+ 756:../common/lpcusb/target/usbhw_lpc.c **** 		volatile U32 dmaDescriptor[], 
+ 757:../common/lpcusb/target/usbhw_lpc.c **** 		volatile U32 nextDdPtr[],
+ 758:../common/lpcusb/target/usbhw_lpc.c **** 		const U8 isIsocFlag, 
+ 759:../common/lpcusb/target/usbhw_lpc.c **** 		const U16 maxPacketSize, 
+ 760:../common/lpcusb/target/usbhw_lpc.c **** 		const U16 dmaLengthIsocNumFrames,
+ 761:../common/lpcusb/target/usbhw_lpc.c **** 		void *dmaBufferStartAddress,
+ 762:../common/lpcusb/target/usbhw_lpc.c **** 		U32 *isocPacketSizeMemoryAddress ) 
+ 763:../common/lpcusb/target/usbhw_lpc.c **** {
+ 1438              		.loc 1 763 1 is_stmt 1 view -0
+ 1439              		.cfi_startproc
+ 1440              		@ args = 12, pretend = 0, frame = 0
+ 1441              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1442              		.loc 1 763 1 is_stmt 0 view .LVU455
+ 1443 0000 70B5     		push	{r4, r5, r6, lr}
+ 1444              		.cfi_def_cfa_offset 16
+ 1445              		.cfi_offset 4, -16
+ 1446              		.cfi_offset 5, -12
+ 1447              		.cfi_offset 6, -8
+ 1448              		.cfi_offset 14, -4
+ 764:../common/lpcusb/target/usbhw_lpc.c **** 	dmaDescriptor[1] = 0;
+ 1449              		.loc 1 764 2 is_stmt 1 view .LVU456
+ 1450              		.loc 1 764 19 is_stmt 0 view .LVU457
+ 1451 0002 0024     		movs	r4, #0
+ 1452 0004 4460     		str	r4, [r0, #4]
+ARM GAS  /tmp/ccJtVQ71.s 			page 42
+
+
+ 765:../common/lpcusb/target/usbhw_lpc.c **** 	dmaDescriptor[0] = (U32) nextDdPtr;
+ 1453              		.loc 1 765 2 is_stmt 1 view .LVU458
+ 766:../common/lpcusb/target/usbhw_lpc.c **** 	dmaDescriptor[1] |= ((maxPacketSize & 0x3FF) << 5);//Set maxPacketSize
+ 1454              		.loc 1 766 47 is_stmt 0 view .LVU459
+ 1455 0006 47F6E074 		movw	r4, #32736
+ 765:../common/lpcusb/target/usbhw_lpc.c **** 	dmaDescriptor[0] = (U32) nextDdPtr;
+ 1456              		.loc 1 765 19 view .LVU460
+ 1457 000a 0160     		str	r1, [r0]
+ 1458              		.loc 1 766 2 is_stmt 1 view .LVU461
+ 1459              		.loc 1 766 19 is_stmt 0 view .LVU462
+ 1460 000c 4668     		ldr	r6, [r0, #4]
+ 1461              		.loc 1 766 47 view .LVU463
+ 1462 000e 04EA4314 		and	r4, r4, r3, lsl #5
+ 1463              		.loc 1 766 19 view .LVU464
+ 1464 0012 3443     		orrs	r4, r4, r6
+ 1465 0014 4460     		str	r4, [r0, #4]
+ 767:../common/lpcusb/target/usbhw_lpc.c **** 	dmaDescriptor[1] |= (dmaLengthIsocNumFrames << 16);//aka number of ISOC packets if in ISOC mode
+ 1466              		.loc 1 767 2 is_stmt 1 view .LVU465
+ 1467              		.loc 1 767 19 is_stmt 0 view .LVU466
+ 1468 0016 4368     		ldr	r3, [r0, #4]
+ 1469              	.LVL108:
+ 1470              		.loc 1 767 19 view .LVU467
+ 1471 0018 BDF81040 		ldrh	r4, [sp, #16]
+ 763:../common/lpcusb/target/usbhw_lpc.c **** 	dmaDescriptor[1] = 0;
+ 1472              		.loc 1 763 1 view .LVU468
+ 1473 001c 069D     		ldr	r5, [sp, #24]
+ 1474              		.loc 1 767 19 view .LVU469
+ 1475 001e 43EA0443 		orr	r3, r3, r4, lsl #16
+ 1476 0022 4360     		str	r3, [r0, #4]
+ 768:../common/lpcusb/target/usbhw_lpc.c **** 	if( isIsocFlag ) {
+ 1477              		.loc 1 768 2 is_stmt 1 view .LVU470
+ 1478              		.loc 1 768 4 is_stmt 0 view .LVU471
+ 1479 0024 1AB1     		cbz	r2, .L108
+ 769:../common/lpcusb/target/usbhw_lpc.c **** 		dmaDescriptor[1] |= (1<<4);//enable isoc type
+ 1480              		.loc 1 769 3 is_stmt 1 view .LVU472
+ 1481              		.loc 1 769 20 is_stmt 0 view .LVU473
+ 1482 0026 4368     		ldr	r3, [r0, #4]
+ 1483 0028 43F01003 		orr	r3, r3, #16
+ 1484 002c 4360     		str	r3, [r0, #4]
+ 1485              	.L108:
+ 770:../common/lpcusb/target/usbhw_lpc.c **** 	}
+ 771:../common/lpcusb/target/usbhw_lpc.c **** 	if( nextDdPtr != NULL ) {
+ 1486              		.loc 1 771 2 is_stmt 1 view .LVU474
+ 1487              		.loc 1 771 4 is_stmt 0 view .LVU475
+ 1488 002e 19B1     		cbz	r1, .L109
+ 772:../common/lpcusb/target/usbhw_lpc.c **** 		dmaDescriptor[1] |= (1<<2); //mark next DD as valid
+ 1489              		.loc 1 772 3 is_stmt 1 view .LVU476
+ 1490              		.loc 1 772 20 is_stmt 0 view .LVU477
+ 1491 0030 4368     		ldr	r3, [r0, #4]
+ 1492 0032 43F00403 		orr	r3, r3, #4
+ 1493 0036 4360     		str	r3, [r0, #4]
+ 1494              	.L109:
+ 773:../common/lpcusb/target/usbhw_lpc.c **** 	}
+ 774:../common/lpcusb/target/usbhw_lpc.c **** 	dmaDescriptor[2] = (U32) dmaBufferStartAddress;
+ 1495              		.loc 1 774 2 is_stmt 1 view .LVU478
+ 1496              		.loc 1 774 19 is_stmt 0 view .LVU479
+ 1497 0038 059B     		ldr	r3, [sp, #20]
+ARM GAS  /tmp/ccJtVQ71.s 			page 43
+
+
+ 1498 003a 8360     		str	r3, [r0, #8]
+ 775:../common/lpcusb/target/usbhw_lpc.c **** 	
+ 776:../common/lpcusb/target/usbhw_lpc.c **** 	if( isIsocFlag && isocPacketSizeMemoryAddress != NULL ) {
+ 1499              		.loc 1 776 2 is_stmt 1 view .LVU480
+ 1500              		.loc 1 776 4 is_stmt 0 view .LVU481
+ 1501 003c 0AB1     		cbz	r2, .L110
+ 1502              		.loc 1 776 17 discriminator 1 view .LVU482
+ 1503 003e 05B1     		cbz	r5, .L110
+ 777:../common/lpcusb/target/usbhw_lpc.c **** 		dmaDescriptor[4] = (U32) isocPacketSizeMemoryAddress;
+ 1504              		.loc 1 777 3 is_stmt 1 view .LVU483
+ 1505              		.loc 1 777 20 is_stmt 0 view .LVU484
+ 1506 0040 0561     		str	r5, [r0, #16]
+ 1507              	.L110:
+ 778:../common/lpcusb/target/usbhw_lpc.c **** 	}
+ 779:../common/lpcusb/target/usbhw_lpc.c **** 	dmaDescriptor[3] = 0; //mark DD as valid and reset all status bits
+ 1508              		.loc 1 779 2 is_stmt 1 view .LVU485
+ 1509              		.loc 1 779 19 is_stmt 0 view .LVU486
+ 1510 0042 0023     		movs	r3, #0
+ 1511 0044 C360     		str	r3, [r0, #12]
+ 780:../common/lpcusb/target/usbhw_lpc.c **** }
+ 1512              		.loc 1 780 1 view .LVU487
+ 1513 0046 70BD     		pop	{r4, r5, r6, pc}
+ 1514              		.loc 1 780 1 view .LVU488
+ 1515              		.cfi_endproc
+ 1516              	.LFE22:
+ 1518              		.section	.text.USBDisableDMAForEndpoint,"ax",%progbits
+ 1519              		.align	1
+ 1520              		.global	USBDisableDMAForEndpoint
+ 1521              		.syntax unified
+ 1522              		.thumb
+ 1523              		.thumb_func
+ 1524              		.fpu softvfp
+ 1526              	USBDisableDMAForEndpoint:
+ 1527              	.LVL109:
+ 1528              	.LFB23:
+ 781:../common/lpcusb/target/usbhw_lpc.c **** 
+ 782:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 783:../common/lpcusb/target/usbhw_lpc.c ****     This function disables DMA for the endpoint indicated by the paramater.
+ 784:../common/lpcusb/target/usbhw_lpc.c ****         
+ 785:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] bEndpointNumber the endpoint number to be disabled.
+ 786:../common/lpcusb/target/usbhw_lpc.c **** 
+ 787:../common/lpcusb/target/usbhw_lpc.c ****     @return   void
+ 788:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 789:../common/lpcusb/target/usbhw_lpc.c **** void USBDisableDMAForEndpoint(const U8 bEndpointNumber) {
+ 1529              		.loc 1 789 57 is_stmt 1 view -0
+ 1530              		.cfi_startproc
+ 1531              		@ args = 0, pretend = 0, frame = 0
+ 1532              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1533              		@ link register save eliminated.
+ 1534              		.loc 1 789 57 is_stmt 0 view .LVU490
+ 790:../common/lpcusb/target/usbhw_lpc.c **** 	int idx = EP2IDX(bEndpointNumber);
+ 1535              		.loc 1 790 2 is_stmt 1 view .LVU491
+ 1536              	.LVL110:
+ 791:../common/lpcusb/target/usbhw_lpc.c **** 	USBEpDMADis = (1<<idx);
+ 1537              		.loc 1 791 2 view .LVU492
+ 790:../common/lpcusb/target/usbhw_lpc.c **** 	int idx = EP2IDX(bEndpointNumber);
+ 1538              		.loc 1 790 12 is_stmt 0 view .LVU493
+ARM GAS  /tmp/ccJtVQ71.s 			page 44
+
+
+ 1539 0000 4300     		lsls	r3, r0, #1
+ 1540 0002 03F01E03 		and	r3, r3, #30
+ 790:../common/lpcusb/target/usbhw_lpc.c **** 	int idx = EP2IDX(bEndpointNumber);
+ 1541              		.loc 1 790 6 view .LVU494
+ 1542 0006 43EAD010 		orr	r0, r3, r0, lsr #7
+ 1543              	.LVL111:
+ 1544              		.loc 1 791 18 view .LVU495
+ 1545 000a 0123     		movs	r3, #1
+ 1546 000c 03FA00F0 		lsl	r0, r3, r0
+ 1547              		.loc 1 791 14 view .LVU496
+ 1548 0010 014B     		ldr	r3, .L124
+ 1549 0012 1860     		str	r0, [r3]
+ 792:../common/lpcusb/target/usbhw_lpc.c **** }
+ 1550              		.loc 1 792 1 view .LVU497
+ 1551 0014 7047     		bx	lr
+ 1552              	.L125:
+ 1553 0016 00BF     		.align	2
+ 1554              	.L124:
+ 1555 0018 8CC20050 		.word	1342227084
+ 1556              		.cfi_endproc
+ 1557              	.LFE23:
+ 1559              		.section	.text.USBEnableDMAForEndpoint,"ax",%progbits
+ 1560              		.align	1
+ 1561              		.global	USBEnableDMAForEndpoint
+ 1562              		.syntax unified
+ 1563              		.thumb
+ 1564              		.thumb_func
+ 1565              		.fpu softvfp
+ 1567              	USBEnableDMAForEndpoint:
+ 1568              	.LVL112:
+ 1569              	.LFB24:
+ 793:../common/lpcusb/target/usbhw_lpc.c **** 
+ 794:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 795:../common/lpcusb/target/usbhw_lpc.c ****     Enables DMA for a particular endpoint.
+ 796:../common/lpcusb/target/usbhw_lpc.c ****         
+ 797:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] bEndpontNumber The endpoint to to enable DMA for.
+ 798:../common/lpcusb/target/usbhw_lpc.c **** 
+ 799:../common/lpcusb/target/usbhw_lpc.c ****     @return 
+ 800:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 801:../common/lpcusb/target/usbhw_lpc.c **** void USBEnableDMAForEndpoint(const U8 bEndpointNumber) {
+ 1570              		.loc 1 801 56 is_stmt 1 view -0
+ 1571              		.cfi_startproc
+ 1572              		@ args = 0, pretend = 0, frame = 0
+ 1573              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1574              		@ link register save eliminated.
+ 1575              		.loc 1 801 56 is_stmt 0 view .LVU499
+ 802:../common/lpcusb/target/usbhw_lpc.c **** 	int idx = EP2IDX(bEndpointNumber);
+ 1576              		.loc 1 802 2 is_stmt 1 view .LVU500
+ 1577              	.LVL113:
+ 803:../common/lpcusb/target/usbhw_lpc.c **** 	USBEpDMAEn = (1<<idx);
+ 1578              		.loc 1 803 2 view .LVU501
+ 802:../common/lpcusb/target/usbhw_lpc.c **** 	int idx = EP2IDX(bEndpointNumber);
+ 1579              		.loc 1 802 12 is_stmt 0 view .LVU502
+ 1580 0000 4300     		lsls	r3, r0, #1
+ 1581 0002 03F01E03 		and	r3, r3, #30
+ 802:../common/lpcusb/target/usbhw_lpc.c **** 	int idx = EP2IDX(bEndpointNumber);
+ 1582              		.loc 1 802 6 view .LVU503
+ARM GAS  /tmp/ccJtVQ71.s 			page 45
+
+
+ 1583 0006 43EAD010 		orr	r0, r3, r0, lsr #7
+ 1584              	.LVL114:
+ 1585              		.loc 1 803 17 view .LVU504
+ 1586 000a 0123     		movs	r3, #1
+ 1587 000c 03FA00F0 		lsl	r0, r3, r0
+ 1588              		.loc 1 803 13 view .LVU505
+ 1589 0010 014B     		ldr	r3, .L127
+ 1590 0012 1860     		str	r0, [r3]
+ 804:../common/lpcusb/target/usbhw_lpc.c **** }
+ 1591              		.loc 1 804 1 view .LVU506
+ 1592 0014 7047     		bx	lr
+ 1593              	.L128:
+ 1594 0016 00BF     		.align	2
+ 1595              	.L127:
+ 1596 0018 88C20050 		.word	1342227080
+ 1597              		.cfi_endproc
+ 1598              	.LFE24:
+ 1600              		.section	.text.USBInitializeISOCFrameArray,"ax",%progbits
+ 1601              		.align	1
+ 1602              		.global	USBInitializeISOCFrameArray
+ 1603              		.syntax unified
+ 1604              		.thumb
+ 1605              		.thumb_func
+ 1606              		.fpu softvfp
+ 1608              	USBInitializeISOCFrameArray:
+ 1609              	.LVL115:
+ 1610              	.LFB25:
+ 805:../common/lpcusb/target/usbhw_lpc.c **** 
+ 806:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 807:../common/lpcusb/target/usbhw_lpc.c ****     This function is used to initialized an ISOC frame array
+ 808:../common/lpcusb/target/usbhw_lpc.c ****         
+ 809:../common/lpcusb/target/usbhw_lpc.c ****     @param [in|out] isocFrameArr        The array of ISOC frame descriptors to be set, it should po
+ 810:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] numElements             The number of elements in the isocFrameArr array.
+ 811:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] startFrameNumber        Number to start at for numbering each frame.
+ 812:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] defaultFrameLength      The frame length to set all the frame descriptors to.
+ 813:../common/lpcusb/target/usbhw_lpc.c **** 
+ 814:../common/lpcusb/target/usbhw_lpc.c ****     @return  void
+ 815:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 816:../common/lpcusb/target/usbhw_lpc.c **** void USBInitializeISOCFrameArray(U32 isocFrameArr[], const U32 numElements, const U16 startFrameNum
+ 1611              		.loc 1 816 135 is_stmt 1 view -0
+ 1612              		.cfi_startproc
+ 1613              		@ args = 0, pretend = 0, frame = 0
+ 1614              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1615              		.loc 1 816 135 is_stmt 0 view .LVU508
+ 1616 0000 70B5     		push	{r4, r5, r6, lr}
+ 1617              		.cfi_def_cfa_offset 16
+ 1618              		.cfi_offset 4, -16
+ 1619              		.cfi_offset 5, -12
+ 1620              		.cfi_offset 6, -8
+ 1621              		.cfi_offset 14, -4
+ 817:../common/lpcusb/target/usbhw_lpc.c **** 	U16 i;
+ 1622              		.loc 1 817 2 is_stmt 1 view .LVU509
+ 818:../common/lpcusb/target/usbhw_lpc.c **** 	U16 frameNumber = startFrameNumber;
+ 1623              		.loc 1 818 2 view .LVU510
+ 1624              	.LVL116:
+ 819:../common/lpcusb/target/usbhw_lpc.c **** 	
+ 820:../common/lpcusb/target/usbhw_lpc.c **** 	for(i = 0; i < numElements; i++ ) {
+ARM GAS  /tmp/ccJtVQ71.s 			page 46
+
+
+ 1625              		.loc 1 820 2 view .LVU511
+ 1626              		.loc 1 820 2 is_stmt 0 view .LVU512
+ 1627 0002 0025     		movs	r5, #0
+ 821:../common/lpcusb/target/usbhw_lpc.c **** 		isocFrameArr[i] = (frameNumber<<16) | (1<<15) | (defaultFrameLength & 0x3FF);
+ 1628              		.loc 1 821 71 view .LVU513
+ 1629 0004 C3F30903 		ubfx	r3, r3, #0, #10
+ 1630              	.LVL117:
+ 1631              	.L130:
+ 1632              		.loc 1 821 71 view .LVU514
+ 1633 0008 AEB2     		uxth	r6, r5
+ 1634 000a 5419     		adds	r4, r2, r5
+ 820:../common/lpcusb/target/usbhw_lpc.c **** 		isocFrameArr[i] = (frameNumber<<16) | (1<<15) | (defaultFrameLength & 0x3FF);
+ 1635              		.loc 1 820 2 discriminator 1 view .LVU515
+ 1636 000c 8E42     		cmp	r6, r1
+ 1637 000e A4B2     		uxth	r4, r4
+ 1638              	.LVL118:
+ 820:../common/lpcusb/target/usbhw_lpc.c **** 		isocFrameArr[i] = (frameNumber<<16) | (1<<15) | (defaultFrameLength & 0x3FF);
+ 1639              		.loc 1 820 13 is_stmt 1 discriminator 1 view .LVU516
+ 1640 0010 05F10105 		add	r5, r5, #1
+ 1641              	.LVL119:
+ 820:../common/lpcusb/target/usbhw_lpc.c **** 		isocFrameArr[i] = (frameNumber<<16) | (1<<15) | (defaultFrameLength & 0x3FF);
+ 1642              		.loc 1 820 2 is_stmt 0 discriminator 1 view .LVU517
+ 1643 0014 00D3     		bcc	.L131
+ 822:../common/lpcusb/target/usbhw_lpc.c **** 		frameNumber++;
+ 823:../common/lpcusb/target/usbhw_lpc.c **** 	}
+ 824:../common/lpcusb/target/usbhw_lpc.c **** }
+ 1644              		.loc 1 824 1 view .LVU518
+ 1645 0016 70BD     		pop	{r4, r5, r6, pc}
+ 1646              	.LVL120:
+ 1647              	.L131:
+ 821:../common/lpcusb/target/usbhw_lpc.c **** 		frameNumber++;
+ 1648              		.loc 1 821 3 is_stmt 1 discriminator 3 view .LVU519
+ 821:../common/lpcusb/target/usbhw_lpc.c **** 		frameNumber++;
+ 1649              		.loc 1 821 49 is_stmt 0 discriminator 3 view .LVU520
+ 1650 0018 43EA0444 		orr	r4, r3, r4, lsl #16
+ 1651              	.LVL121:
+ 821:../common/lpcusb/target/usbhw_lpc.c **** 		frameNumber++;
+ 1652              		.loc 1 821 49 discriminator 3 view .LVU521
+ 1653 001c 44F40044 		orr	r4, r4, #32768
+ 821:../common/lpcusb/target/usbhw_lpc.c **** 		frameNumber++;
+ 1654              		.loc 1 821 19 discriminator 3 view .LVU522
+ 1655 0020 40F82640 		str	r4, [r0, r6, lsl #2]
+ 822:../common/lpcusb/target/usbhw_lpc.c **** 		frameNumber++;
+ 1656              		.loc 1 822 3 is_stmt 1 discriminator 3 view .LVU523
+ 1657              	.LVL122:
+ 820:../common/lpcusb/target/usbhw_lpc.c **** 		isocFrameArr[i] = (frameNumber<<16) | (1<<15) | (defaultFrameLength & 0x3FF);
+ 1658              		.loc 1 820 30 discriminator 3 view .LVU524
+ 820:../common/lpcusb/target/usbhw_lpc.c **** 		isocFrameArr[i] = (frameNumber<<16) | (1<<15) | (defaultFrameLength & 0x3FF);
+ 1659              		.loc 1 820 30 is_stmt 0 discriminator 3 view .LVU525
+ 1660 0024 F0E7     		b	.L130
+ 1661              		.cfi_endproc
+ 1662              	.LFE25:
+ 1664              		.section	.text.USBSetHeadDDForDMA,"ax",%progbits
+ 1665              		.align	1
+ 1666              		.global	USBSetHeadDDForDMA
+ 1667              		.syntax unified
+ 1668              		.thumb
+ARM GAS  /tmp/ccJtVQ71.s 			page 47
+
+
+ 1669              		.thumb_func
+ 1670              		.fpu softvfp
+ 1672              	USBSetHeadDDForDMA:
+ 1673              	.LVL123:
+ 1674              	.LFB26:
+ 825:../common/lpcusb/target/usbhw_lpc.c **** 
+ 826:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 827:../common/lpcusb/target/usbhw_lpc.c ****     This function is used to set the DMA descriptor head for the linked list of a particular endpoi
+ 828:../common/lpcusb/target/usbhw_lpc.c ****         
+ 829:../common/lpcusb/target/usbhw_lpc.c ****     @param [in] bEp                    The endpoint number to set the DMA linked list head for.
+ 830:../common/lpcusb/target/usbhw_lpc.c ****     @param [in|out] udcaHeadArray      The array of pointers that point to the head DD elements for
+ 831:../common/lpcusb/target/usbhw_lpc.c ****     @param [in|out] dmaDescriptorPtr   The address of the DMA descriptor that is to be the new head
+ 832:../common/lpcusb/target/usbhw_lpc.c **** 
+ 833:../common/lpcusb/target/usbhw_lpc.c ****     @return 
+ 834:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 835:../common/lpcusb/target/usbhw_lpc.c **** void USBSetHeadDDForDMA(const U8 bEp, volatile U32* udcaHeadArray[32], volatile U32 *dmaDescriptorP
+ 1675              		.loc 1 835 104 is_stmt 1 view -0
+ 1676              		.cfi_startproc
+ 1677              		@ args = 0, pretend = 0, frame = 0
+ 1678              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1679              		@ link register save eliminated.
+ 1680              		.loc 1 835 104 is_stmt 0 view .LVU527
+ 836:../common/lpcusb/target/usbhw_lpc.c **** 	udcaHeadArray[EP2IDX(bEp)] = dmaDescriptorPtr;
+ 1681              		.loc 1 836 2 is_stmt 1 view .LVU528
+ 1682              		.loc 1 836 16 is_stmt 0 view .LVU529
+ 1683 0000 4300     		lsls	r3, r0, #1
+ 1684 0002 03F01E03 		and	r3, r3, #30
+ 1685 0006 43EAD010 		orr	r0, r3, r0, lsr #7
+ 1686              	.LVL124:
+ 1687              		.loc 1 836 29 view .LVU530
+ 1688 000a 41F82020 		str	r2, [r1, r0, lsl #2]
+ 837:../common/lpcusb/target/usbhw_lpc.c **** }
+ 1689              		.loc 1 837 1 view .LVU531
+ 1690 000e 7047     		bx	lr
+ 1691              		.cfi_endproc
+ 1692              	.LFE26:
+ 1694              		.section	.text.USBInitializeUSBDMA,"ax",%progbits
+ 1695              		.align	1
+ 1696              		.global	USBInitializeUSBDMA
+ 1697              		.syntax unified
+ 1698              		.thumb
+ 1699              		.thumb_func
+ 1700              		.fpu softvfp
+ 1702              	USBInitializeUSBDMA:
+ 1703              	.LVL125:
+ 1704              	.LFB27:
+ 838:../common/lpcusb/target/usbhw_lpc.c **** 
+ 839:../common/lpcusb/target/usbhw_lpc.c **** /**
+ 840:../common/lpcusb/target/usbhw_lpc.c ****     This function is used to initialize the USB DMA controller
+ 841:../common/lpcusb/target/usbhw_lpc.c ****         
+ 842:../common/lpcusb/target/usbhw_lpc.c ****     @param [in|out] udcaHeadArray   This is a pointer to the array of DMA descriptor linked-list he
+ 843:../common/lpcusb/target/usbhw_lpc.c **** 
+ 844:../common/lpcusb/target/usbhw_lpc.c ****     @return 
+ 845:../common/lpcusb/target/usbhw_lpc.c ****  */
+ 846:../common/lpcusb/target/usbhw_lpc.c **** void USBInitializeUSBDMA(volatile U32* udcaHeadArray[32]) {
+ 1705              		.loc 1 846 59 is_stmt 1 view -0
+ 1706              		.cfi_startproc
+ARM GAS  /tmp/ccJtVQ71.s 			page 48
+
+
+ 1707              		@ args = 0, pretend = 0, frame = 0
+ 1708              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1709              		@ link register save eliminated.
+ 1710              		.loc 1 846 59 is_stmt 0 view .LVU533
+ 847:../common/lpcusb/target/usbhw_lpc.c **** 	//set following 32 pointers to be null
+ 848:../common/lpcusb/target/usbhw_lpc.c **** 	int i;
+ 1711              		.loc 1 848 2 is_stmt 1 view .LVU534
+ 849:../common/lpcusb/target/usbhw_lpc.c **** 	for(i = 0; i < 32; i++ ) {
+ 1712              		.loc 1 849 2 view .LVU535
+ 1713              	.LVL126:
+ 1714              		.loc 1 849 13 view .LVU536
+ 850:../common/lpcusb/target/usbhw_lpc.c **** 		udcaHeadArray[i] = NULL;
+ 1715              		.loc 1 850 20 is_stmt 0 view .LVU537
+ 1716 0000 0021     		movs	r1, #0
+ 1717 0002 031F     		subs	r3, r0, #4
+ 1718 0004 00F17C02 		add	r2, r0, #124
+ 1719              	.LVL127:
+ 1720              	.L134:
+ 1721              		.loc 1 850 3 is_stmt 1 discriminator 3 view .LVU538
+ 1722              		.loc 1 850 20 is_stmt 0 discriminator 3 view .LVU539
+ 1723 0008 43F8041F 		str	r1, [r3, #4]!
+ 849:../common/lpcusb/target/usbhw_lpc.c **** 	for(i = 0; i < 32; i++ ) {
+ 1724              		.loc 1 849 21 is_stmt 1 discriminator 3 view .LVU540
+ 849:../common/lpcusb/target/usbhw_lpc.c **** 	for(i = 0; i < 32; i++ ) {
+ 1725              		.loc 1 849 13 discriminator 3 view .LVU541
+ 849:../common/lpcusb/target/usbhw_lpc.c **** 	for(i = 0; i < 32; i++ ) {
+ 1726              		.loc 1 849 2 is_stmt 0 discriminator 3 view .LVU542
+ 1727 000c 9342     		cmp	r3, r2
+ 1728 000e FBD1     		bne	.L134
+ 851:../common/lpcusb/target/usbhw_lpc.c **** 	}
+ 852:../common/lpcusb/target/usbhw_lpc.c **** 	USBUDCAH = (U32) udcaHeadArray;
+ 1729              		.loc 1 852 2 is_stmt 1 view .LVU543
+ 1730              		.loc 1 852 11 is_stmt 0 view .LVU544
+ 1731 0010 014B     		ldr	r3, .L136
+ 1732 0012 1860     		str	r0, [r3]
+ 853:../common/lpcusb/target/usbhw_lpc.c **** }
+ 1733              		.loc 1 853 1 view .LVU545
+ 1734 0014 7047     		bx	lr
+ 1735              	.L137:
+ 1736 0016 00BF     		.align	2
+ 1737              	.L136:
+ 1738 0018 80C20050 		.word	1342227072
+ 1739              		.cfi_endproc
+ 1740              	.LFE27:
+ 1742              		.bss
+ 1743              		.align	2
+ 1744              		.set	.LANCHOR0,. + 0
+ 1747              	_apfnEPIntHandlers:
+ 1748 0000 00000000 		.space	64
+ 1748      00000000 
+ 1748      00000000 
+ 1748      00000000 
+ 1748      00000000 
+ 1751              	_pfnDevIntHandler:
+ 1752 0040 00000000 		.space	4
+ 1755              	_pfnFrameHandler:
+ 1756 0044 00000000 		.space	4
+ARM GAS  /tmp/ccJtVQ71.s 			page 49
+
+
+ 1757              		.text
+ 1758              	.Letext0:
+ 1759              		.file 2 "../common/lpcusb/target/type.h"
+ 1760              		.file 3 "/backup/ZEPHYR/AVATAR/root/gcc-arm-none-eabi-9-2020-q2-update/lib/gcc/arm-none-eabi/9.3.1
+ 1761              		.file 4 "../common/lpcusb/target/usbapi.h"
+ARM GAS  /tmp/ccJtVQ71.s 			page 50
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 usbhw_lpc.c
+     /tmp/ccJtVQ71.s:16     .text.Wait4DevInt:0000000000000000 $t
+     /tmp/ccJtVQ71.s:23     .text.Wait4DevInt:0000000000000000 Wait4DevInt
+     /tmp/ccJtVQ71.s:53     .text.Wait4DevInt:0000000000000010 $d
+     /tmp/ccJtVQ71.s:59     .text.USBHwCmd:0000000000000000 $t
+     /tmp/ccJtVQ71.s:65     .text.USBHwCmd:0000000000000000 USBHwCmd
+     /tmp/ccJtVQ71.s:95     .text.USBHwCmd:0000000000000014 $d
+     /tmp/ccJtVQ71.s:100    .text.USBHwCmdWrite:0000000000000000 $t
+     /tmp/ccJtVQ71.s:106    .text.USBHwCmdWrite:0000000000000000 USBHwCmdWrite
+     /tmp/ccJtVQ71.s:144    .text.USBHwCmdWrite:000000000000001c $d
+     /tmp/ccJtVQ71.s:149    .text.USBHwEPConfig:0000000000000000 $t
+     /tmp/ccJtVQ71.s:156    .text.USBHwEPConfig:0000000000000000 USBHwEPConfig
+     /tmp/ccJtVQ71.s:240    .text.USBHwEPConfig:0000000000000034 $d
+     /tmp/ccJtVQ71.s:248    .text.USBHwRegisterEPIntHandler:0000000000000000 $t
+     /tmp/ccJtVQ71.s:255    .text.USBHwRegisterEPIntHandler:0000000000000000 USBHwRegisterEPIntHandler
+     /tmp/ccJtVQ71.s:303    .text.USBHwRegisterEPIntHandler:000000000000002c $d
+     /tmp/ccJtVQ71.s:309    .text.USBHwRegisterDevIntHandler:0000000000000000 $t
+     /tmp/ccJtVQ71.s:316    .text.USBHwRegisterDevIntHandler:0000000000000000 USBHwRegisterDevIntHandler
+     /tmp/ccJtVQ71.s:343    .text.USBHwRegisterDevIntHandler:0000000000000010 $d
+     /tmp/ccJtVQ71.s:349    .text.USBHwRegisterFrameHandler:0000000000000000 $t
+     /tmp/ccJtVQ71.s:356    .text.USBHwRegisterFrameHandler:0000000000000000 USBHwRegisterFrameHandler
+     /tmp/ccJtVQ71.s:383    .text.USBHwRegisterFrameHandler:0000000000000010 $d
+     /tmp/ccJtVQ71.s:389    .text.USBHwSetAddress:0000000000000000 $t
+     /tmp/ccJtVQ71.s:396    .text.USBHwSetAddress:0000000000000000 USBHwSetAddress
+     /tmp/ccJtVQ71.s:416    .text.USBHwConnect:0000000000000000 $t
+     /tmp/ccJtVQ71.s:423    .text.USBHwConnect:0000000000000000 USBHwConnect
+     /tmp/ccJtVQ71.s:445    .text.USBHwNakIntEnable:0000000000000000 $t
+     /tmp/ccJtVQ71.s:452    .text.USBHwNakIntEnable:0000000000000000 USBHwNakIntEnable
+     /tmp/ccJtVQ71.s:474    .text.USBHwEPGetStatus:0000000000000000 $t
+     /tmp/ccJtVQ71.s:481    .text.USBHwEPGetStatus:0000000000000000 USBHwEPGetStatus
+     /tmp/ccJtVQ71.s:538    .text.USBHwEPGetStatus:000000000000002c $d
+     /tmp/ccJtVQ71.s:544    .text.USBHwEPStall:0000000000000000 $t
+     /tmp/ccJtVQ71.s:551    .text.USBHwEPStall:0000000000000000 USBHwEPStall
+     /tmp/ccJtVQ71.s:583    .text.USBHwEPWrite:0000000000000000 $t
+     /tmp/ccJtVQ71.s:590    .text.USBHwEPWrite:0000000000000000 USBHwEPWrite
+     /tmp/ccJtVQ71.s:671    .text.USBHwEPWrite:0000000000000048 $d
+     /tmp/ccJtVQ71.s:677    .text.USBHwEPRead:0000000000000000 $t
+     /tmp/ccJtVQ71.s:684    .text.USBHwEPRead:0000000000000000 USBHwEPRead
+     /tmp/ccJtVQ71.s:816    .text.USBHwEPRead:0000000000000064 $d
+     /tmp/ccJtVQ71.s:823    .text.USBHwISOCEPRead:0000000000000000 $t
+     /tmp/ccJtVQ71.s:830    .text.USBHwISOCEPRead:0000000000000000 USBHwISOCEPRead
+     /tmp/ccJtVQ71.s:996    .text.USBHwISOCEPRead:000000000000007c $d
+     /tmp/ccJtVQ71.s:1003   .text.USBHwConfigDevice:0000000000000000 $t
+     /tmp/ccJtVQ71.s:1010   .text.USBHwConfigDevice:0000000000000000 USBHwConfigDevice
+     /tmp/ccJtVQ71.s:1032   .text.USBHwISR:0000000000000000 $t
+     /tmp/ccJtVQ71.s:1039   .text.USBHwISR:0000000000000000 USBHwISR
+     /tmp/ccJtVQ71.s:1271   .text.USBHwISR:00000000000000a8 $d
+     /tmp/ccJtVQ71.s:1284   .text.USBHwInit:0000000000000000 $t
+     /tmp/ccJtVQ71.s:1291   .text.USBHwInit:0000000000000000 USBHwInit
+     /tmp/ccJtVQ71.s:1418   .text.USBHwInit:000000000000009c $d
+     /tmp/ccJtVQ71.s:1428   .text.USBSetupDMADescriptor:0000000000000000 $t
+     /tmp/ccJtVQ71.s:1435   .text.USBSetupDMADescriptor:0000000000000000 USBSetupDMADescriptor
+     /tmp/ccJtVQ71.s:1519   .text.USBDisableDMAForEndpoint:0000000000000000 $t
+     /tmp/ccJtVQ71.s:1526   .text.USBDisableDMAForEndpoint:0000000000000000 USBDisableDMAForEndpoint
+     /tmp/ccJtVQ71.s:1555   .text.USBDisableDMAForEndpoint:0000000000000018 $d
+     /tmp/ccJtVQ71.s:1560   .text.USBEnableDMAForEndpoint:0000000000000000 $t
+ARM GAS  /tmp/ccJtVQ71.s 			page 51
+
+
+     /tmp/ccJtVQ71.s:1567   .text.USBEnableDMAForEndpoint:0000000000000000 USBEnableDMAForEndpoint
+     /tmp/ccJtVQ71.s:1596   .text.USBEnableDMAForEndpoint:0000000000000018 $d
+     /tmp/ccJtVQ71.s:1601   .text.USBInitializeISOCFrameArray:0000000000000000 $t
+     /tmp/ccJtVQ71.s:1608   .text.USBInitializeISOCFrameArray:0000000000000000 USBInitializeISOCFrameArray
+     /tmp/ccJtVQ71.s:1665   .text.USBSetHeadDDForDMA:0000000000000000 $t
+     /tmp/ccJtVQ71.s:1672   .text.USBSetHeadDDForDMA:0000000000000000 USBSetHeadDDForDMA
+     /tmp/ccJtVQ71.s:1695   .text.USBInitializeUSBDMA:0000000000000000 $t
+     /tmp/ccJtVQ71.s:1702   .text.USBInitializeUSBDMA:0000000000000000 USBInitializeUSBDMA
+     /tmp/ccJtVQ71.s:1738   .text.USBInitializeUSBDMA:0000000000000018 $d
+     /tmp/ccJtVQ71.s:1743   .bss:0000000000000000 $d
+     /tmp/ccJtVQ71.s:1747   .bss:0000000000000000 _apfnEPIntHandlers
+     /tmp/ccJtVQ71.s:1751   .bss:0000000000000040 _pfnDevIntHandler
+     /tmp/ccJtVQ71.s:1755   .bss:0000000000000044 _pfnFrameHandler
+
+NO UNDEFINED SYMBOLS

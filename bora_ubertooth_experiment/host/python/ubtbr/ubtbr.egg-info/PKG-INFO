@@ -1,0 +1,17 @@
+Metadata-Version: 2.1
+Name: ubtbr
+Version: 1.0
+Summary: Ubtbr firmware control library
+Home-page: https://github.com/greatscottgadgets/ubertooth/
+Author: Etienne Helluy-Lafont, Univ. Lille, CNRS
+License: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 5 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: GNU General Public License (GPL)
+Classifier: Programming Language :: Python
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3
+
+UNKNOWN
+

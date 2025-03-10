@@ -1,0 +1,8 @@
+/data/bora/ubertooth/host/python/ubtbr/ubtbr/__init__.py
+/data/bora/ubertooth/host/python/ubtbr/ubtbr/btctl.py
+/data/bora/ubertooth/host/python/ubtbr/ubtbr/lmp.py
+/data/bora/ubertooth/host/python/ubtbr/ubtbr.egg-info/PKG-INFO
+/data/bora/ubertooth/host/python/ubtbr/ubtbr.egg-info/SOURCES.txt
+/data/bora/ubertooth/host/python/ubtbr/ubtbr.egg-info/dependency_links.txt
+/data/bora/ubertooth/host/python/ubtbr/ubtbr.egg-info/requires.txt
+/data/bora/ubertooth/host/python/ubtbr/ubtbr.egg-info/top_level.txt
