@@ -27,7 +27,7 @@ BoRa_code/
 |sx1280_recv_bora| This folder contains the code for SX1280 to receive emulated LoRa signals transmitted by *BoRa*.|
 |sx1280_recv| This folder contains the code for SX1280 to transmit native LoRa signal|
 
-
+Each application directory has a `README.md` to introduce the usage.
 
 
 ## Requirements
