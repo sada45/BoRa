@@ -1,7 +1,7 @@
 # ***BoRa:*** LoRa Over BLE
 This is the open source code for **[MobiCom'25] *BoRa:* LoRa over BLE**.
 
-The code structure shows as follows:
+**Each application directory has a `README.md` to introduce the usage**. The code structure shows as follows:
 ```bash
 BoRa_code/
 |--ubertooth
@@ -27,7 +27,7 @@ BoRa_code/
 |sx1280_recv_bora| This folder contains the code for SX1280 to receive emulated LoRa signals transmitted by *BoRa*.|
 |sx1280_recv| This folder contains the code for SX1280 to transmit native LoRa signal|
 
-**Each application directory has a `README.md` to introduce the usage.**
+
 
 
 ## Requirements
