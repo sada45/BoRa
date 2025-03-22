@@ -1,5 +1,5 @@
-BOARD ?= nucleo-l073rz
-APPLICATION = sx1280_send
+BOARD ?= nucleo-f103rb
+APPLICATION = sx1280_recv_bora
 
 # required modules
 USEMODULE += sx1280

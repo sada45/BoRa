@@ -1,4 +1,4 @@
-BoRa ADC Sampling Code
+# *BoRa* ADC Sampling Code
 =======
 
 This is an example to use a **NUCLEO-F722ZE** to sample the I/Q signals output from the Ubertooth One with the high-frequency ADCs. The raw data will be sampled and stored into a TF card.

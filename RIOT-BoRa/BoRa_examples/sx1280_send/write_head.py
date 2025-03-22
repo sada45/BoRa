@@ -13,7 +13,7 @@ if __name__=="__main__":
     import argparse  
     parser = argparse.ArgumentParser(description='Process some integers.')    
     parser.add_argument('-b', '--bw', type=int, default=500, required=True, help='an integer for meter')
-    parser.add_argument('-s', '--sf', type=int, default=7, required=False, help='an integer for meter')  
+    parser.add_argument('-s', '--sf', type=int, default=7, help='an integer for meter')  
       
     args = parser.parse_args() 
     bw = args.bw
@@ -30,4 +30,6 @@ if __name__=="__main__":
         len = 21
     elif sf == 6:
         len = 18
+    elif sf == 9:
+        len = 27
     main(sf=sf, bw=bw, len=len, path="default_config.h")

@@ -37,14 +37,14 @@
 #include "sx1280_netdev.h"
 #include "xtimer.h"
 #include "default_config.h"
-#define ENABLE_DEBUG 0
+#define ENABLE_DEBUG 1
 #include "debug.h"
 
 #define SX1280_MSG_QUEUE        (8U)
 #define SX1280_STACKSIZE        (THREAD_STACKSIZE_DEFAULT)
 #define SX1280_MSG_TYPE_ISR     (0x3456)
 #define SX1280_MAX_PAYLOAD_LEN  (128U)
-
+#define LED_PIN GPIO_PIN(0, 15)
 static char stack[SX1280_STACKSIZE];
 static kernel_pid_t _recv_pid;
 
@@ -55,6 +55,7 @@ int flag = 1;
 static void _event_cb(netdev_t *dev, netdev_event_t event)
 {
 
+    printf("EVENT:%d\n", event);
     if (event == NETDEV_EVENT_ISR) {
         msg_t msg;
         msg.type = SX1280_MSG_TYPE_ISR;
@@ -97,11 +98,7 @@ static void _event_cb(netdev_t *dev, netdev_event_t event)
         }
     }
 }
-#ifdef SF_8
-uint8_t hello[PAYLOAD_LENGTH] = {0xdd, 0x3c, 0x78, 0x75, 0x52, 0x3b, 0x25, 0x11, 0x6e, 0x7c, 0x0e, 0x99, 0x52, 0xb6, 0x44, 0x1d, 0x89, 0xf6, 0x69, 0x7f, 0x86, 0x0e, 0x76, 0x32};
-#else
-uint8_t hello[PAYLOAD_LENGTH] = {0xd7, 0x1c, 0x10, 0x56, 0x9e, 0x9c, 0x91, 0x8b, 0xe0, 0x96, 0x0d, 0x74, 0xb0, 0xed, 0xd5, 0x1a, 0x24, 0x23, 0x74, 0x49, 0x3a};
-#endif
+uint8_t hello[64] = {0};
 #define LEN_HELLO PAYLOAD_LENGTH
 iolist_t iolist_ = {
     .iol_base = &hello,
@@ -127,7 +124,7 @@ void *_recv_thread(void *arg)
 
     static msg_t _msg_queue[SX1280_MSG_QUEUE];
 
-    uint8_t cr = 0;
+    uint8_t cr = 4;
     netdev->driver->set(netdev, NETOPT_CODING_RATE, &cr, sizeof(uint8_t));
     xtimer_msleep(100);
     uint8_t sf = SPEACTOR_FACTOR;
@@ -142,16 +139,17 @@ void *_recv_thread(void *arg)
     printf("START!!!\n");
 
     while (1) {
-        if (flag == 1){
-            send(netdev);
-            flag = 0;
-        }
-        msg_t msg;
-        msg_receive(&msg);
-        if (msg.type == SX1280_MSG_TYPE_ISR) {
-            netdev->driver->isr(netdev);
-        }
-        // xtimer_msleep(100 - 18);
+        // if (flag == 1){
+        //     send(netdev);
+        //     flag = 0;
+        // }
+        // msg_t msg;
+        // msg_receive(&msg);
+        // if (msg.type == SX1280_MSG_TYPE_ISR) {
+        //     netdev->driver->isr(netdev);
+        // }
+        send(netdev);
+        xtimer_msleep(100);
     }
 }
 
@@ -420,6 +418,10 @@ static const shell_command_t shell_commands[] = {
 
 int main(void)
 {
+    // if (gpio_init(LED_PIN, GPIO_OUT)){
+    //     printf("[sx1280] error: failed to initialize tx_led pin\n");
+    // }
+    // gpio_set(LED_PIN);
     sx1280_setup(&sx1280, &sx1280_params[0], 0);
 
     if (gpio_init(sx1280.params->tx_led, GPIO_OUT)){
@@ -446,7 +448,7 @@ int main(void)
                               "recv_thread");
 
     if (_recv_pid <= KERNEL_PID_UNDEF) {
-        puts("Creation of receiver threjad failed");
+        puts("Creation of receiver thread failed");
         return 1;
     }
 
