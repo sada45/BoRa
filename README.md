@@ -2,7 +2,7 @@
 This is the open source code for **[MobiCom'25] *BoRa:* LoRa over BLE**.
 
 **Each application directory has a `README.md` to introduce the usage**. The code structure shows as follows:
-```bash
+<!-- ```bash
 BoRa_code/
 |--ubertooth
    |--firmware/
@@ -16,7 +16,22 @@ BoRa_code/
       |--sx1280_recv_bora
       |--sx1280_send
 
+``` -->
+```text
+📁 BoRa_code/
+├── 📂 ubertooth/
+│   └── 📂 firmware/
+│       ├── 📄 BoRa_tx_1280
+│       ├── 📄 BoRa_tx_normal
+│       └── 📄 BoRa_rx
+└── 📂 RIOT-BoRa/
+    └── 📂 BoRa_example/
+        ├── 📄 BoRa_ADC_sampling
+        ├── 📄 sx1280_recv
+        ├── 📄 sx1280_recv_bora
+        └── 📄 sx1280_send
 ```
+
 
 
 |FILE|Description|
