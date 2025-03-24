@@ -2,7 +2,7 @@
  * Copyright (C) 2018 Freie Universität Berlin
  *               2017 OTA keys S.A.
  *               2018-2020 Inria
- *               2024-     Zhejiang University
+ *               2024-     
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -21,7 +21,7 @@
  * @author      Hauke Petersen <hauke.petersen@fu-berlin.de>
  * @author      Vincent Dupont <vincent@otakeys.com>
  * @author      Alexandre Abadie <alexandre.abadie@inria.fr>
- * @author      Yeming Li <liymemnets@zju.edu.cn>
+ * @author      
  */
 
 #ifndef CLK_F2F4F7_CFG_CLOCK_DEFAULT_208_H

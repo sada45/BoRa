@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024 Zhejiang University 
+ * Copyright (C) 2024 
  *
  * This file is subject to the terms and conditions of the GNU Lesser
  * General Public License v2.1. See the file LICENSE in the top level
@@ -15,7 +15,7 @@
  *
  * @file
  *
- * @author      Yeming Li <liymemnets@zju.edu.cn>
+ * @author      
  */
 
 #ifndef BORA_DECODER_WORK_H

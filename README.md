@@ -1,4 +1,4 @@
-# ***BoRa:*** LoRa Over BLE
+# ***BoRa:*** LoRa over BLE
 This is the open source code for **[MobiCom'25] *BoRa:* LoRa over BLE**.
 
 **Each application directory has a `README.md` to introduce the usage**. The code structure shows as follows:
