@@ -17,6 +17,8 @@ BoRa_code/
       |--sx1280_send
 
 ```
+
+
 |FILE|Description|
 |---|---|
 |BoRa_tx_normal|This folder contains the code for transmitting BoRa packets.(BW:250kHz, 500kHz, 1000kHz).|
@@ -28,8 +30,6 @@ BoRa_code/
 |sx1280_recv| This folder contains the code for SX1280 to transmit native LoRa signal|
 
 
-
-
 ## Requirements
 `arm-none-eabi-gcc==10.3.1 20210621 (release)`
 Ubertooth firmware&tools can be find in `./ubertooth/host/`, based on [Ubertooth](https://github.com/greatscottgadgets/ubertooth) commit e0fd34d8a
@@ -39,4 +39,5 @@ Ubertooth firmware&tools can be find in `./ubertooth/host/`, based on [Ubertooth
 |*BoRa* Rx *BoRa*/LoRa | 1x Ubertooth One, 1x NUCLEO NUCLEO-F722ZE, 1x TF card slot |
 |Native LoRa Tx/Rx| 1x NUCLEO-L073RZ, 1x SX1280RF1ZHP | 
 
-
+## Thanks 
+This work uses [Ubertooth firmware](https://github.com/greatscottgadgets/ubertooth) and [RIOT-OS](https://github.com/RIOT-OS/RIOT). Special thanks to the Ubertooth and RIOT communities for their invaluable support!
