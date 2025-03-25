@@ -9,7 +9,7 @@ After the binary is flashed, start the terminal of the RIOT-OS:
 ```bash
 make term
 ```
-*BoRa* uses implicit header mode, which requires setting the packet length. However, we find we need to transmit once packet with the certain length can correctly set the receiving packet length. Therefore, besides update the `PAYLOAD_LENGTH` in `default_config.h`, we also need to transmit a packet:
+*BoRa* uses implicit header mode, which requires setting the packet length. However, we find we need to transmit once packet with the certain length to correctly set the receiving packet length. Therefore, besides update the `PAYLOAD_LENGTH` in `default_config.h`, we also need to transmit a packet:
 ```bash
 sx1280 tx <PAYLOAD_LENGTH>
 ```
