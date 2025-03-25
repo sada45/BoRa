@@ -42,7 +42,7 @@ BoRa_code/
 |BoRa_ADC_sampling| This folder contains the code for sampling the I/Q signals output from the ATEST1/2 pins on Ubertooth ONE and store them into a TF card.|
 |sx1280_recv| This folder contains the code for SX1280 to receive native LoRa signals.|
 |sx1280_recv_bora| This folder contains the code for SX1280 to receive emulated LoRa signals transmitted by *BoRa*.|
-|sx1280_recv| This folder contains the code for SX1280 to transmit native LoRa signal|
+|sx1280_send| This folder contains the code for SX1280 to transmit native LoRa signal|
 
 
 ## Requirements
