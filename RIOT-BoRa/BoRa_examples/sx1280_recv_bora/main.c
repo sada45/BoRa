@@ -105,7 +105,6 @@ static void _event_cb(netdev_t *dev, netdev_event_t event)
             packet_nums++;
             uint32_t timestamp = xtimer_now_usec();
             printf("<Packet_nums>:%d:%ld:\n", packet_nums, timestamp);
-            // len = PAYLOAD_LENGTH + 1;
             dev->driver->recv(dev, message, len, &packet_info);
             show_bytes(PAYLOAD_LENGTH, packet_info.rssi, (int)packet_info.snr);
             int symbols_num = encode(&message[0], PAYLOAD_LENGTH, &symbols[0]);

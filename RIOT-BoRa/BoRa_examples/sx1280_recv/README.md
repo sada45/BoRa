@@ -9,9 +9,9 @@ After the binary is flashed, start the terminal of the RIOT-OS:
 ```bash
 make term
 ```
-We also uses implicit header mode for native LoRa receiving, which requires setting the packet length. However, we find we need to transmit once packet with the certain length can correctly set the receiving packet length. To transmit data:
+We also uses implicit header mode for native LoRa receiving, which requires setting the packet length. However, we find we need to transmit once packet with the certain length can correctly set the receiving packet length. Therefore, besides update the `PAYLOAD_LENGTH` in `default_config.h`, we also need to transmit a packet:
 ```bash
-sx1280 tx <payload length>
+sx1280 tx <PAYLOAD_LENGTH>
 ```
 After that, we can start receiving *BoRa* signals with:
 ```bash
