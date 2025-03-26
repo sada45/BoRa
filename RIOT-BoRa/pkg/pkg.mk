@@ -71,11 +71,11 @@ PKG_PATCHES = $(sort $(wildcard $(PKG_PATCH_DIR)/*.patch))
 
 PKG_STATE_FILE = .pkg-state.git
 PKG_STATE      = $(PKG_SOURCE_DIR)/$(PKG_STATE_FILE)
-
 PKG_PREPARED   = $(PKG_STATE)-prepared
 PKG_PATCHED    = $(PKG_STATE)-patched
 PKG_DOWNLOADED = $(PKG_STATE)-downloaded
 
+$(info start, $(PKG_STATE), $(PKG_PATCHED), $(PKG_DOWNLOADED))
 # Custom prepared target that can be defined in packages Makefile.
 PKG_CUSTOM_PREPARED ?=
 

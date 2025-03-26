@@ -2,7 +2,7 @@ PKG_NAME=lorabasicsmodem
 # PKG_URL=https://github.com/lorabasics/lorabasicsmodem.git
 PKG_URL=https://github.com/sada45/BoRa-lorabasicsmodem.git
 # PKG_VERSION=04e415bcfbdc7f1f4bff918a4867fab53bc8bb8a
-PKG_VERSION=4c8aac944e6eadb9f785790b94d1757ad1e5c55f
+PKG_VERSION=ff2d7120f8d749f518ce494cba186d01b575617f
 PKG_LICENSE=BSD
 
 include $(RIOTBASE)/pkg/pkg.mk
