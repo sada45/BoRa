@@ -1,4 +1,4 @@
-BOARD ?= nucleo-f103rb
+BOARD ?= nucleo-l073rz
 APPLICATION = sx1280_recv
 
 # required modules

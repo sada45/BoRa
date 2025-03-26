@@ -51,7 +51,7 @@
 
 static char stack[SX1280_STACKSIZE];
 static kernel_pid_t _recv_pid;
-static uint16_t symbols[302] = {0};
+// static uint16_t symbols[302] = {0};
 static int packet_nums = 0;
 static uint8_t message[SX1280_MAX_PAYLOAD_LEN];
 static sx1280_t sx1280;
@@ -107,12 +107,6 @@ static void _event_cb(netdev_t *dev, netdev_event_t event)
             printf("<Packet_nums>:%d:%ld:\n", packet_nums, timestamp);
             dev->driver->recv(dev, message, len, &packet_info);
             show_bytes(PAYLOAD_LENGTH, packet_info.rssi, (int)packet_info.snr);
-            int symbols_num = encode(&message[0], PAYLOAD_LENGTH, &symbols[0]);
-            printf("<Num_sym>:%d:\n", symbols_num); 
-            print_symbols(&symbols[0], symbols_num);
-            freq_mapping(&symbols[0], symbols_num, &symbols[0], SPEACTOR_FACTOR);
-            printf("<Mapping>:");
-            print_symbols(&symbols[0], symbols_num);
             gpio_clear(sx1280_params[0].rx_led);
             printf("========================================================================================\n");
         }
@@ -127,20 +121,6 @@ static void _event_cb(netdev_t *dev, netdev_event_t event)
             print();
             netopt_state_t state = NETOPT_STATE_IDLE;
             dev->driver->set(dev, NETOPT_STATE, &state, sizeof(state));
-            // uint16_t addr;
-            // sx1280_t *dev1 = &sx1280;
-            // uint8_t read_buffer[10] = {0};
-            // addr = SYNCH_PEAK_ATTENUATION;
-            // uint8_t buffer[10] = {0};
-            // buffer[0] = 0x3c;
-            // sx1280_write_register( (&(dev1->ral))->context, addr, buffer, 1);
-            // buffer[0] = 0x0;
-            // addr = AFTER_LORA_SYNC_WORD_S;
-            // sx1280_read_register( (&(dev1->ral))->context, addr, read_buffer, 6 );
-            // printf("pre_add:0x%x,0x%x,0x%x,0x%x,0x%x,0x%x\n", read_buffer[0],read_buffer[1],read_buffer[2],read_buffer[3],read_buffer[4],read_buffer[5]);
-            // // sx1280_write_register( (&(dev1->ral))->context, addr, &buffer[0], 6);
-            // sx1280_read_register( (&(dev1->ral))->context, addr, read_buffer, 6 );
-            // printf("after_add:0x%x,0x%x,0x%x,0x%x,0x%x,0x%x\n", read_buffer[0],read_buffer[1],read_buffer[2],read_buffer[3],read_buffer[4],read_buffer[5]);
             break;
 
         case NETDEV_EVENT_TX_TIMEOUT:
