@@ -139,17 +139,8 @@ void *_recv_thread(void *arg)
     printf("START!!!\n");
 
     while (1) {
-        // if (flag == 1){
-        //     send(netdev);
-        //     flag = 0;
-        // }
-        // msg_t msg;
-        // msg_receive(&msg);
-        // if (msg.type == SX1280_MSG_TYPE_ISR) {
-        //     netdev->driver->isr(netdev);
-        // }
         send(netdev);
-        xtimer_msleep(100);
+        xtimer_msleep(1000);
     }
 }
 
