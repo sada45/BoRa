@@ -165,7 +165,6 @@ static const dma_conf_t dma_config[6] = {
 static const int adc_dma_chan1 = 0;
 static const int adc_dma_chan2 = 0;
 static const dma_t adc_dma1 = 3;
-static const dma_t adc_dma2 = 4;
 #define DMA_NUMOF   6
 
 #ifdef __cplusplus
