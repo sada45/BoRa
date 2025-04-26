@@ -234,8 +234,8 @@ extern "C" {
 #define LORA_SYNCWORD_PUBLIC           (0x34)  /**< Syncword used for public networks */
 #define LORA_SYNCWORD_PRIVATE          (0x12)  /**< Syncword used for private networks */
 /* see https://lora-developers.semtech.com/documentation/tech-papers-and-guides/physical-layer-proposal-2.4ghz */
-#define LORA_SYNCWORD_ISM2400_PUBLIC   (0x21)  /**< Syncword used for public networks on ISM2400 */
-// #define LORA_SYNCWORD_ISM2400_PUBLIC   (0x55)  /**< Syncword used for public networks on ISM2400 */
+// #define LORA_SYNCWORD_ISM2400_PUBLIC   (0x21)  /**< Syncword used for public networks on ISM2400 */
+#define LORA_SYNCWORD_ISM2400_PUBLIC   (0x55)  /**< Syncword used for receiving BoRa */
 
 /** @} */
 
