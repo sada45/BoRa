@@ -55,6 +55,46 @@ static void cc2400_idle() {
 	clkn_stop();
 }
 
+void DMA_IRQHandler(void) {
+	dma_tx_cl_t *temp;
+
+	// DMA channel 7: debug UART
+	if (DMACIntStat & (1 << 7)) {
+		// TC -- DMA completed, unset flag so another printf can occur
+		if (DMACIntTCStat & (1 << 7)) {
+			DMACIntTCClear = (1 << 7);
+			if (dma_uart_start->next) {
+				temp = dma_uart_start->next;
+				debug_send_dma(temp->data, temp->len);
+				free(dma_uart_start->data);
+				free((void*)dma_uart_start);
+				dma_uart_start = temp;
+			}
+			else {
+				free(dma_uart_start->data);
+				free((void*)dma_uart_start);
+				dma_uart_start = 0;
+				dma_uart_end = 0;
+			}
+		}
+		// error -- blow up
+		if (DMACIntErrStat & (1 << 7)) {
+			DMACIntErrClr = (1 << 7);
+			// FIXME do something better here
+			while (1) { }
+		}
+	}
+	/* BoRa: deal with the DMA interrupt for carrier Tx */
+	if (DMACIntStat & (1 << 0)) {
+		/* Transfered one byte */
+		if (DMACIntTCStat & (1 << 0)) {
+			DMACIntTCClear = (1 << 0);	
+		}
+		if (DMACIntErrStat & (1 << 0)) {
+			DMACIntErrClr = (1 << 0);
+		}
+	}
+}
 void bora_start_rx_analog() {
 	// Bluetooth-like modulation
 	cc2400_set(MANAND,  0x7fff);
